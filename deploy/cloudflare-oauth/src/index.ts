@@ -75,7 +75,7 @@ function responseHtml(body: string, status = 200): Response {
 }
 
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>\"']/gu, (character) => {
+  return value.replace(/[&<>"']/gu, (character) => {
     const entities: Record<string, string> = {
       "&": "&amp;",
       "<": "&lt;",

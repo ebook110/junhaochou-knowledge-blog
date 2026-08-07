@@ -2,6 +2,7 @@ name = "junhaochou-decap-oauth"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 workers_dev = true
+preview_urls = false
 
 [vars]
 CMS_ORIGIN = "https://junhaochou.com"
