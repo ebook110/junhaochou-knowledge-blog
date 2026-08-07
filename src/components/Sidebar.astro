@@ -1,0 +1,137 @@
+---
+import { categories, tools } from "../data/site";
+import type { Article } from "../utils/articles";
+interface Props {
+  articles: Article[];
+  side: "left" | "right";
+}
+const { articles, side } = Astro.props;
+const counts = new Map(
+  articles.map((item) => [
+    item.data.category,
+    articles.filter((entry) => entry.data.category === item.data.category).length,
+  ]),
+);
+const tags = [...new Set(articles.flatMap((item) => item.data.tags))].slice(0, 10);
+const recent = articles.slice(0, 5);
+const featured = articles.filter((article) => article.data.featured).slice(0, 4);
+---
+
+{
+  side === "left" ? (
+    <aside class="space-y-5">
+      <>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">内容分类</h2>
+            <ul class="mt-3 space-y-1">
+              {categories.map((category) => (
+                <li>
+                  <a
+                    class="flex justify-between py-1.5 text-sm text-slate-600 hover:text-blue-600 dark:text-slate-300"
+                    href={`/categories/${category.slug}/`}
+                  >
+                    <span>{category.name}</span>
+                    <span class="text-slate-400">{counts.get(category.slug) ?? 0}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </section>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">常用标签</h2>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <a
+                  class="border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
+                  href={`/tags/${tag}/`}
+                >
+                  {tag}
+                </a>
+              ))}
+            </div>
+          </>
+        </section>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">工具导航</h2>
+            <ul class="mt-3 space-y-2">
+              {tools.map((tool) => (
+                <li>
+                  <a
+                    class="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                    href={tool.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {tool.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </section>
+      </>
+    </aside>
+  ) : (
+    <aside class="space-y-5">
+      <>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">推荐文章</h2>
+            <ul class="mt-3 space-y-3">
+              {featured.map((article) => (
+                <li>
+                  <a
+                    class="text-sm font-medium text-slate-700 hover:text-blue-600 dark:text-slate-200"
+                    href={`/articles/${article.data.slug}/`}
+                  >
+                    {article.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </section>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">最近更新</h2>
+            <ul class="mt-3 space-y-3">
+              {recent.map((article) => (
+                <li>
+                  <a
+                    class="block text-sm text-slate-700 hover:text-blue-600 dark:text-slate-200"
+                    href={`/articles/${article.data.slug}/`}
+                  >
+                    {article.data.title}
+                    <span class="mt-1 block text-xs text-slate-400">
+                      {(article.data.updatedDate ?? article.data.pubDate).toLocaleDateString(
+                        "zh-CN",
+                      )}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </section>
+        <section class="surface p-4">
+          <>
+            <h2 class="text-sm font-semibold text-slate-900 dark:text-white">订阅</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              通过 RSS 获取新增文章与验证更新。
+            </p>
+            <a
+              class="mt-3 inline-block text-sm font-medium text-blue-600 dark:text-blue-400"
+              href="/rss.xml"
+            >
+              订阅 RSS
+            </a>
+          </>
+        </section>
+      </>
+    </aside>
+  )
+}

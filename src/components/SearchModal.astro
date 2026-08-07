@@ -1,0 +1,72 @@
+---
+import { Search, X } from "lucide-astro";
+---
+
+<dialog
+  id="search-modal"
+  class="m-auto w-[min(94vw,760px)] border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+>
+  <div class="border-b border-slate-200 p-4 dark:border-slate-700">
+    <div class="flex items-center gap-3">
+      <Search class="h-5 w-5 text-blue-600" /><input
+        id="search-input"
+        class="min-w-0 flex-1 bg-transparent text-base outline-none"
+        placeholder="搜索文章、主题、标签"
+        aria-label="搜索文章"
+      /><button data-search-close class="p-1 text-slate-500" aria-label="关闭搜索"
+        ><X class="h-5 w-5" /></button
+      >
+    </div>
+  </div>
+  <div id="search-results" class="max-h-[55vh] overflow-auto p-3">
+    <p class="subtle p-3">输入关键词以搜索本站内容。</p>
+  </div>
+</dialog>
+<script>
+  interface PagefindItemData {
+    url: string;
+    meta: { title: string };
+    excerpt: string;
+  }
+  interface PagefindResult {
+    data: () => Promise<PagefindItemData>;
+  }
+  interface PagefindApi {
+    search: (query: string) => Promise<{ results: PagefindResult[] }>;
+  }
+  const modal = document.querySelector<HTMLDialogElement>("#search-modal");
+  const input = document.querySelector<HTMLInputElement>("#search-input");
+  const results = document.querySelector<HTMLElement>("#search-results");
+  let pagefind: PagefindApi | undefined;
+  const pagefindPath = "/pagefind/pagefind.js";
+  const open = async () => {
+    modal?.showModal();
+    input?.focus();
+    pagefind ??= (await import(/* @vite-ignore */ pagefindPath)) as unknown as PagefindApi;
+  };
+  document
+    .querySelectorAll("[data-search-open]")
+    .forEach((button) => button.addEventListener("click", open));
+  document.querySelector("[data-search-close]")?.addEventListener("click", () => modal?.close());
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      open();
+    }
+    if (event.key === "Escape") modal?.close();
+  });
+  input?.addEventListener("input", async () => {
+    const query = input.value.trim();
+    if (!query || !pagefind || !results) return;
+    const search = await pagefind.search(query);
+    const data = await Promise.all(search.results.slice(0, 8).map((item) => item.data()));
+    results.innerHTML = data.length
+      ? data
+          .map(
+            (item) =>
+              `<a class="block border-b border-slate-100 px-3 py-3 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800" href="${item.url}"><strong>${item.meta.title}</strong><p class="mt-1 text-sm text-slate-500">${item.excerpt}</p></a>`,
+          )
+          .join("")
+      : '<p class="subtle p-3">没有匹配结果。</p>';
+  });
+</script>

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+deploy/cloudflare-oauth/.dev.vars
+deploy/cloudflare-oauth/.wrangler/
+*.log
+.DS_Store

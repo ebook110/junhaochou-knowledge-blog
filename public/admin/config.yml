@@ -1,0 +1,155 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/YOUR_REPOSITORY
+  branch: main
+  base_url: https://YOUR_OAUTH_WORKER.YOUR_SUBDOMAIN.workers.dev
+  auth_endpoint: auth
+
+publish_mode: editorial_workflow
+site_url: https://junhaochou.com
+display_url: https://junhaochou.com
+media_folder: public/images/covers
+public_folder: /images/covers
+
+collections:
+  - name: articles
+    label: 文章
+    label_singular: 文章
+    folder: src/content/articles
+    create: true
+    extension: mdx
+    format: frontmatter
+    slug: "{{slug}}"
+    preview_path: "articles/{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { label: 标题, name: title, widget: string, required: true }
+      - { label: 摘要, name: description, widget: text, required: true, hint: "20 至 220 个字符。" }
+      - {
+          label: URL Slug,
+          name: slug,
+          widget: string,
+          required: true,
+          hint: "使用稳定的小写 ASCII 路径。",
+        }
+      - {
+          label: 发布日期,
+          name: pubDate,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: true,
+        }
+      - {
+          label: 更新日期,
+          name: updatedDate,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: false,
+        }
+      - label: 分类
+        name: category
+        widget: select
+        required: true
+        options:
+          - { label: "VPS 与建站", value: vps }
+          - { label: "Sub2API 与 AI", value: sub2api }
+          - { label: "网络与节点", value: network }
+          - { label: "银行卡与 U 卡", value: cards }
+          - { label: "ANSYS 与 Codex", value: ansys }
+          - { label: "Linux 与脚本", value: linux }
+          - { label: "工具与资源", value: tools }
+          - { label: "学习与项目", value: learning }
+      - {
+          label: 标签,
+          name: tags,
+          widget: list,
+          required: true,
+          field: { label: 标签, name: tag, widget: string },
+        }
+      - { label: 系列, name: series, widget: string, required: false }
+      - {
+          label: 系列顺序,
+          name: seriesOrder,
+          widget: number,
+          value_type: int,
+          min: 1,
+          required: false,
+        }
+      - label: 难度
+        name: difficulty
+        widget: select
+        required: true
+        options: [入门, 进阶, 高级]
+      - {
+          label: 前置条件,
+          name: prerequisites,
+          widget: list,
+          required: false,
+          field: { label: 条件, name: prerequisite, widget: string },
+        }
+      - {
+          label: 适用环境,
+          name: environment,
+          widget: list,
+          required: false,
+          field: { label: 环境, name: environmentItem, widget: string },
+        }
+      - label: 封面
+        name: cover
+        widget: object
+        fields:
+          - {
+              label: 封面图片,
+              name: src,
+              widget: image,
+              required: true,
+              hint: "仅上传 WebP；图片会提交至 public/images/covers。",
+            }
+          - {
+              label: 中文替代文本,
+              name: alt,
+              widget: string,
+              required: true,
+              pattern: ["[\\u4E00-\\u9FFF]", "请填写包含中文的图片替代文本。"],
+            }
+          - {
+              label: 焦点位置,
+              name: focal,
+              widget: string,
+              required: false,
+              default: "64% center",
+              hint: "例如：64% center。",
+            }
+      - { label: 草稿, name: draft, widget: boolean, required: false, default: false }
+      - { label: 首页精选, name: featured, widget: boolean, required: false, default: false }
+      - { label: 显示目录, name: toc, widget: boolean, required: false, default: true }
+      - {
+          label: 最后验证日期,
+          name: lastVerified,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: false,
+        }
+      - { label: 作者, name: author, widget: string, required: false, default: JunhaoChou }
+      - { label: Canonical URL, name: canonical, widget: string, required: false }
+      - { label: 风险或免责声明, name: disclaimer, widget: text, required: false }
+      - {
+          label: 相关文章 Slug,
+          name: related,
+          widget: list,
+          required: false,
+          field: { label: Slug, name: relatedSlug, widget: string },
+        }
+      - label: 正文（Markdown / MDX 源码）
+        name: body
+        widget: markdown
+        required: false
+        buttons: [bold, italic, code, link, quote, bulleted-list, numbered-list]
+        editor_components: []

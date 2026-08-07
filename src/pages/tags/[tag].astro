@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import { getPublishedArticles } from "../../utils/articles";
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return [...new Set(articles.flatMap((article) => article.data.tags))].map((tag) => ({
+    params: { tag },
+    props: { tag },
+  }));
+}
+const { tag } = Astro.props;
+const articles = (await getPublishedArticles()).filter((article) =>
+  article.data.tags.includes(tag),
+);
+---
+
+<BaseLayout title={`标签：${tag}`} description={`所有与 ${tag} 相关的技术文章。`}
+  ><div class="container py-10">
+    <a class="text-sm text-blue-600" href="/tags/">标签</a><h1
+      class="mt-2 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      {tag}
+    </h1><div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {articles.map((article) => <ArticleCard article={article} />)}
+    </div>
+  </div></BaseLayout
+>

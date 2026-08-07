@@ -1,0 +1,74 @@
+---
+title: 从零部署一台安全的 Ubuntu VPS
+description: 用最小暴露面完成 Ubuntu VPS 的账户、更新、SSH、UFW 与可验证部署基线。
+slug: vps-secure-ubuntu
+pubDate: 2026-07-18
+updatedDate: 2026-07-22
+category: vps
+tags: [Ubuntu, VPS, SSH, 安全基线]
+series: VPS 建站基础
+seriesOrder: 1
+difficulty: 入门
+prerequisites: [可登录的 Ubuntu 24.04 VPS, 已备案或可用域名不是本教程的前置条件]
+environment: [Ubuntu 24.04 LTS, OpenSSH, UFW]
+cover:
+  src: /images/covers/vps-secure-ubuntu.webp
+  alt: 蓝色服务器安全运维抽象图，包含节点链路与工程网格
+  focal: 64% center
+featured: true
+toc: true
+lastVerified: 2026-07-22
+author: JunhaoChou
+disclaimer: 本文仅覆盖本人拥有或获得授权的服务器的常规加固与运维操作。
+related: [docker-sub2api]
+---
+
+> **风险提示**：先保持一个已登录的终端窗口，再测试新的 SSH 会话。未验证前不要关闭原连接，否则错误的防火墙规则可能使你失去访问权限。
+
+## 目标与边界
+
+一台刚创建的 VPS 默认可用，但不等于可长期维护。这里的目标不是堆叠安全软件，而是建立一个可回滚、可检查的最小基线：专用管理员账户、系统更新、密钥登录和明确的入站规则。不要把服务器密码、私钥或供应商令牌写进 Git。
+
+## 1. 建立受限管理员
+
+使用新账户处理日常运维，避免长期直接使用 root。把公钥放在本地可信终端生成，不要把私钥复制到服务器。
+
+```bash title="创建管理员账户"
+adduser deployer
+usermod -aG sudo deployer
+install -d -m 700 -o deployer -g deployer /home/deployer/.ssh
+```
+
+随后将自己的**公钥**写入 `/home/deployer/.ssh/authorized_keys`，设置权限为 `600`。从第二个终端验证 `ssh deployer@服务器地址` 能成功登录后，才继续下一步。
+
+## 2. 更新与 SSH 最小配置
+
+安全更新应当是可观察的常规维护，而不是一次性动作。修改 SSH 配置前先备份，重载服务前用语法检查确认。
+
+```bash title="更新系统并检查 SSH 配置"
+sudo apt update && sudo apt upgrade -y
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+sudoedit /etc/ssh/sshd_config
+sudo sshd -t
+sudo systemctl reload ssh
+```
+
+建议明确关闭 root 远程登录与密码认证，并保留公钥认证。不同网络环境的 SSH 端口策略不同；更换端口不是访问控制的替代品。
+
+## 3. 仅允许必要入站流量
+
+先允许当前 SSH 端口，再启用 UFW。若之后运行网站，公开 80/443；容器应用端口只绑定本机回环地址。
+
+```bash title="UFW 最小入站规则"
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+sudo ufw status numbered
+```
+
+## 验证与维护
+
+记录创建时间、系统版本、开放端口和最近更新日期。每月执行一次更新并查看 `journalctl -p warning..alert -b`；有异常时先阅读日志，再做变更。备份应存放在与主机故障域不同的位置，并定期做恢复演练。

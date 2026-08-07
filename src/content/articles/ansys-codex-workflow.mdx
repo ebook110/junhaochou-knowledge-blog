@@ -1,0 +1,52 @@
+---
+title: 使用 Codex 辅助整理 ANSYS 仿真流程
+description: 将仿真任务拆分为可审查的输入、求解、后处理和报告步骤，让 AI 协助而不替代工程判断。
+slug: ansys-codex-workflow
+pubDate: 2026-07-25
+updatedDate: 2026-07-28
+category: ansys
+tags: [ANSYS, Codex, APDL, 仿真流程]
+series: 仿真工作流
+seriesOrder: 1
+difficulty: 进阶
+prerequisites: [基础有限元知识, 可运行的 ANSYS 环境, 明确的载荷与边界条件]
+environment: [ANSYS Mechanical, MAPDL, Python]
+cover:
+  src: /images/covers/ansys-codex-workflow.webp
+  alt: 紫蓝色工程仿真抽象图，包含有限元网格与关联节点
+  focal: 64% center
+featured: true
+toc: true
+lastVerified: 2026-07-28
+author: JunhaoChou
+disclaimer: AI 生成的脚本和解释必须经模型假设、单位、边界条件和结果收敛性验证，不能替代工程责任人审核。
+related: [knowledge-base-method]
+---
+
+> **版本提示**：不同 ANSYS 版本、单元类型和材料模型的命令差异很大。将版本和求解器设置写入项目记录，避免把未验证的示例直接用于结论。
+
+## 把任务拆成可验证单元
+
+有效的协作不是让 AI “做完仿真”，而是让它帮助整理重复劳动：生成参数清单、审阅 APDL 语法、解释日志或汇总后处理表格。模型定义、单位体系、网格收敛与物理合理性仍须由研究者控制。
+
+```apdl title="参数化骨架示意"
+/PREP7
+ET,1,SOLID185
+MP,EX,1,210000
+MP,PRXY,1,0.30
+! 后续补充经验证的几何、网格和边界条件
+FINISH
+```
+
+## 建议的提示词上下文
+
+向 Codex 提供目标、软件版本、单位制、已知参数、不可改变的假设和期望输出。不要上传含未公开数据、受限图纸或凭据的完整项目；可先用脱敏的最小可复现实例验证脚本。
+
+## 结果审查清单
+
+- 反力平衡是否与载荷一致？
+- 单位、材料参数和坐标方向是否统一？
+- 网格、时间步或非线性迭代是否已经收敛？
+- 云图是否与数值表和物理预期相互支持？
+
+将每次运行的输入版本、日志摘要与图表导出路径写进项目记录，才能让后续论文复查有据可循。

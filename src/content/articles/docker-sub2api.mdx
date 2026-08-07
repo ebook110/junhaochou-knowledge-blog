@@ -1,0 +1,65 @@
+---
+title: 使用 Docker 部署 Sub2API：配置、日志与回滚
+description: 以容器化方式部署经授权使用的 Sub2API 服务，并建立最小权限、日志和升级回滚流程。
+slug: docker-sub2api
+pubDate: 2026-07-20
+updatedDate: 2026-07-25
+category: sub2api
+tags: [Docker, Sub2API, Compose, 运维]
+series: VPS 建站基础
+seriesOrder: 2
+difficulty: 进阶
+prerequisites:
+  [已完成 VPS 安全基线, 已安装 Docker Engine 与 Docker Compose, 已获得所使用上游服务的授权]
+environment: [Ubuntu 24.04 LTS, Docker Engine 27+, Docker Compose v2]
+cover:
+  src: /images/covers/docker-sub2api.webp
+  alt: 青绿色容器与接口编排抽象图，包含结构化节点和网格
+  focal: 64% center
+featured: true
+toc: true
+lastVerified: 2026-07-25
+author: JunhaoChou
+disclaimer: 仅对有权使用的 API 和服务进行部署、测试与故障排查；遵守上游平台条款、配额与数据处理要求。
+related: [vps-secure-ubuntu, nginx-cloudflare]
+---
+
+> **合规说明**：部署代理或聚合类服务前，应确认账户、密钥、数据源和调用场景均得到授权。本文不涉及绕过平台限制、共享受限账户或规避访问控制。
+
+## 部署前先确定配置边界
+
+将镜像版本、端口、持久化目录和环境变量分开管理。密钥只放在服务器上的受限 `.env` 文件，仓库只保留 `.env.example`。容器端口默认绑定 `127.0.0.1`，再由 Nginx 提供 HTTPS 入口。
+
+```yaml title="compose.yaml 的最小模式"
+services:
+  sub2api:
+    image: example/sub2api:stable
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - ./data:/app/data
+```
+
+示例镜像名只表示结构。应以项目官方文档中的镜像、变量和健康检查路径为准，并固定到经过验证的版本标签，而非盲目追随 `latest`。
+
+## 启动、检查与日志
+
+```bash title="容器常规检查"
+docker compose config
+docker compose up -d
+docker compose ps
+docker compose logs --tail=100 sub2api
+curl -fsS http://127.0.0.1:8081/healthz
+```
+
+如果健康检查失败，先确认应用实际暴露的路径、端口和容器日志。不要通过关闭 TLS 校验、放开所有来源或打印环境变量来“修复”连接问题。
+
+## 升级和回滚
+
+升级前备份数据卷和当前镜像摘要，先在低风险时间窗口拉取新镜像。升级后执行健康检查与一条匿名化的最小请求。发现回归时，将 compose 文件恢复到上一个已验证的镜像标签并重启服务；不要删除数据目录作为第一反应。
+
+## 运行清单
+
+每次变更记录镜像版本、配置变更、验证结果和回滚点。对日志做轮转，对外部调用做限流和配额监控，避免把服务变成不可控的公共转发入口。

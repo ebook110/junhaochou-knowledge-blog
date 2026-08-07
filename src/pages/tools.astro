@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { tools } from "../data/site";
+---
+
+<BaseLayout title="工具与资源" description="经过来源核对的工程、运维和材料计算工具入口。"
+  ><div class="container py-10">
+    <p class="subtle">优先官方来源，记录验证时间</p><h1
+      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      工具与资源
+    </h1><div class="mt-7 grid gap-4 md:grid-cols-2">
+      {
+        tools.map((tool) => (
+          <a
+            class="surface p-5 hover:border-blue-400"
+            href={tool.href}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <>
+              <h2 class="font-semibold text-slate-900 dark:text-white">{tool.name}</h2>
+              <p class="mt-2 text-sm leading-6 text-slate-500">{tool.description}</p>
+              <p class="mt-5 text-sm text-blue-600">打开官方文档</p>
+            </>
+          </a>
+        ))
+      }
+    </div><section
+      class="mt-10 border-l-4 border-amber-500 bg-amber-50 p-5 text-sm leading-7 text-slate-700 dark:bg-amber-950/30 dark:text-slate-200"
+    >
+      资源条目不等同于安全、适配性或服务质量保证。使用前请阅读其官方许可、隐私政策、版本说明与适用限制。
+    </section>
+  </div></BaseLayout
+>

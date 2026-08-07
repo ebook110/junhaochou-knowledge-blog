@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPublishedArticles } from "../../utils/articles";
+const articles = await getPublishedArticles();
+const tags = [...new Set(articles.flatMap((article) => article.data.tags))].sort((a, b) =>
+  a.localeCompare(b, "zh-CN"),
+);
+---
+
+<BaseLayout title="标签" description="按具体技术对象和概念浏览文章。"
+  ><div class="container py-10">
+    <p class="subtle">具体对象、工具与方法</p><h1
+      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      标签
+    </h1><div class="mt-7 flex flex-wrap gap-3">
+      {
+        tags.map((tag) => (
+          <a
+            class="surface px-4 py-3 text-sm text-slate-700 hover:border-blue-400 hover:text-blue-600 dark:text-slate-200"
+            href={`/tags/${tag}/`}
+          >
+            {tag}
+            <span class="ml-2 text-slate-400">
+              {articles.filter((article) => article.data.tags.includes(tag)).length}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div></BaseLayout
+>

@@ -1,0 +1,80 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SearchModal from "../components/SearchModal.astro";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  image?: string;
+  jsonLd?: object;
+}
+const {
+  title = site.title,
+  description = site.description,
+  canonical,
+  image = "/images/covers/hero-engineering.webp",
+  jsonLd,
+} = Astro.props;
+const pageTitle = title === site.title ? title : `${title} | ${site.name}`;
+const url = canonical ?? new URL(Astro.url.pathname, site.url).toString();
+const imageUrl = new URL(image, site.url).toString();
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
+    <title>{pageTitle}</title><meta name="description" content={description} /><link
+      rel="canonical"
+      href={url}
+    />
+    <meta property="og:type" content="website" /><meta
+      property="og:site_name"
+      content={site.name}
+    /><meta property="og:title" content={pageTitle} /><meta
+      property="og:description"
+      content={description}
+    /><meta property="og:url" content={url} />
+    <meta property="og:image" content={imageUrl} /><meta
+      property="og:image:alt"
+      content="JunhaoChou 技术知识库工程抽象图"
+    />
+    <meta name="twitter:card" content="summary_large_image" /><meta
+      name="twitter:title"
+      content={pageTitle}
+    /><meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} RSS`} href="/rss.xml" />
+    {
+      import.meta.env.PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN && (
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({
+            token: import.meta.env.PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN,
+          })}
+        />
+      )
+    }
+    {
+      import.meta.env.PUBLIC_UMAMI_SRC && import.meta.env.PUBLIC_UMAMI_WEBSITE_ID && (
+        <script
+          defer
+          src={import.meta.env.PUBLIC_UMAMI_SRC}
+          data-website-id={import.meta.env.PUBLIC_UMAMI_WEBSITE_ID}
+        />
+      )
+    }
+    <script is:inline>
+      const saved = localStorage.getItem("junhao-theme");
+      if (saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches)
+        document.documentElement.classList.add("dark");
+    </script>
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body><Header /><main><slot /></main><Footer /><SearchModal /></body>
+</html>

@@ -1,0 +1,165 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  --color-ink: #16202c;
+  --color-panel: #f5f7fa;
+  --color-line: #d9e1ea;
+  --color-brand: #1769aa;
+}
+
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply min-h-screen bg-[#f5f7fa] text-slate-800 antialiased;
+}
+
+.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+::selection {
+  @apply bg-sky-200 text-slate-950;
+}
+
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-600;
+}
+
+.container {
+  @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+}
+
+.surface {
+  @apply rounded-md border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.025] dark:border-slate-800 dark:bg-slate-900;
+}
+
+.subtle {
+  @apply text-sm text-slate-500 dark:text-slate-400;
+}
+
+.section-title {
+  @apply text-xl font-bold tracking-normal text-slate-950 dark:text-white;
+}
+
+.icon-button {
+  @apply grid h-9 w-9 place-items-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:border-blue-400 hover:text-blue-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-300;
+}
+
+.cover-frame {
+  @apply relative overflow-hidden rounded-md border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900;
+}
+
+.cover-image {
+  @apply block h-full w-full object-cover transition-transform duration-500;
+}
+
+.group:hover .cover-image {
+  @apply scale-[1.025];
+}
+
+.prose-article {
+  @apply max-w-none text-[1.02rem] leading-8 text-slate-700 dark:text-slate-300;
+}
+
+.prose-article h2 {
+  @apply mt-12 scroll-mt-24 border-b border-slate-200 pb-3 text-2xl font-bold text-slate-950 dark:border-slate-800 dark:text-white;
+}
+
+.prose-article h3 {
+  @apply mt-8 scroll-mt-24 text-xl font-bold text-slate-950 dark:text-white;
+}
+
+.prose-article p {
+  @apply my-5;
+}
+
+.prose-article a {
+  @apply text-blue-700 underline decoration-blue-300 underline-offset-4 hover:text-blue-800 dark:text-blue-400;
+}
+
+.prose-article ul {
+  @apply my-5 list-disc space-y-2 pl-6;
+}
+
+.prose-article ol {
+  @apply my-5 list-decimal space-y-2 pl-6;
+}
+
+.prose-article blockquote {
+  @apply my-6 border-l-4 border-blue-600 bg-blue-50 px-5 py-4 text-slate-700 dark:bg-blue-950/40 dark:text-slate-200;
+}
+
+.prose-article :not(pre) > code {
+  @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-100;
+}
+
+.prose-article pre {
+  @apply relative my-6 overflow-x-auto rounded-md border border-slate-800 bg-slate-950 p-5 text-sm leading-6 text-slate-100;
+}
+
+.prose-article pre code {
+  @apply font-mono;
+}
+
+.prose-article img {
+  @apply my-8 cursor-zoom-in rounded-md border border-slate-200 dark:border-slate-800;
+}
+
+.prose-article table {
+  @apply my-6 w-full border-collapse text-sm;
+}
+
+.prose-article th {
+  @apply bg-slate-100 p-3 text-left dark:bg-slate-800;
+}
+
+.prose-article td {
+  @apply border border-slate-200 p-3 dark:border-slate-800;
+}
+
+.toc-link {
+  @apply block border-l-2 border-transparent py-1.5 pl-3 text-sm text-slate-500 hover:border-blue-500 hover:text-blue-700 dark:text-slate-400 dark:hover:text-blue-300;
+}
+
+.toc-link.active {
+  @apply border-blue-600 text-blue-700 dark:text-blue-300;
+}
+
+.reading-progress {
+  @apply fixed inset-x-0 top-0 z-50 h-0.5 origin-left bg-blue-600;
+}
+
+.mobile-toc-trigger {
+  @apply fixed bottom-5 right-4 z-30 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-lg shadow-slate-950/10 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100;
+}
+
+.mobile-toc-dialog {
+  @apply m-auto w-[min(92vw,460px)] rounded-md border border-slate-200 bg-white p-0 text-slate-800 shadow-2xl backdrop:bg-slate-950/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100;
+}
+
+.home-hero {
+  background-image: linear-gradient(90deg, rgba(7, 30, 57, 0.97), rgba(13, 63, 105, 0.92));
+}
+
+.home-hero .cover-image {
+  mix-blend-mode: screen;
+  opacity: 0.73;
+}
+
+.category-index a {
+  @apply border-l-[3px] border-l-blue-500;
+}

@@ -1,0 +1,22 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+  loading?: "eager" | "lazy";
+  focal?: string;
+}
+
+const { src, alt, class: className = "", loading = "lazy", focal = "center" } = Astro.props;
+---
+
+<img
+  src={src}
+  alt={alt}
+  width="1600"
+  height="900"
+  loading={loading}
+  decoding="async"
+  class:list={["cover-image", className]}
+  style={`object-position: ${focal}`}
+/>

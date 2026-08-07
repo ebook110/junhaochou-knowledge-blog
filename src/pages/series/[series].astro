@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import { bySeries, getPublishedArticles } from "../../utils/articles";
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  const series = [
+    ...new Set(articles.map((article) => article.data.series).filter(Boolean)),
+  ] as string[];
+  return series.map((name) => ({ params: { series: name }, props: { name } }));
+}
+const { name } = Astro.props;
+const articles = bySeries(await getPublishedArticles(), name);
+---
+
+<BaseLayout title={name} description={`${name}系列教程。`}
+  ><div class="container py-10">
+    <a class="text-sm text-blue-600" href="/series/">系列教程</a><h1
+      class="mt-2 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      {name}
+    </h1><ol class="mt-8 grid gap-4 md:grid-cols-2">
+      {
+        articles.map((article, index) => (
+          <li>
+            <>
+              <p class="mb-2 text-sm font-medium text-blue-600">第 {index + 1} 步</p>
+              <ArticleCard article={article} />
+            </>
+          </li>
+        ))
+      }
+    </ol>
+  </div></BaseLayout
+>

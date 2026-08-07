@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import { getPublishedArticles } from "../../utils/articles";
+const articles = await getPublishedArticles();
+---
+
+<BaseLayout title="全部文章" description="按时间浏览 JunhaoChou Knowledge Blog 的全部技术文章。"
+  ><div class="container py-10">
+    <div class="grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)_220px]">
+      <div class="hidden xl:block"><Sidebar articles={articles} side="left" /></div><section>
+        <p class="subtle">持续更新的技术记录</p><h1
+          class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+        >
+          全部文章
+        </h1><div class="mt-7 grid gap-4 md:grid-cols-2">
+          {articles.map((article) => <ArticleCard article={article} />)}
+        </div>
+      </section><div class="hidden xl:block"><Sidebar articles={articles} side="right" /></div>
+    </div>
+  </div></BaseLayout
+>

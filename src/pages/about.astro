@@ -1,0 +1,32 @@
+---
+import { Github, Mail } from "lucide-astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout title="关于" description="JunhaoChou Knowledge Blog 的写作原则与作者公开联系方式。"
+  ><div class="container max-w-4xl py-10">
+    <p class="subtle">材料科研 + 计算技术 + 工程实践</p><h1
+      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      关于 {site.name}
+    </h1><div class="mt-8 space-y-6 text-base leading-8 text-slate-700 dark:text-slate-300">
+      <p>
+        本站用于沉淀材料计算、工程自动化、Linux
+        运维、仿真工具与个人学习项目中的可复现经验。文章尽量说明适用环境、验证日期和限制条件，让技术记录可以被未来的自己再次判断和使用。
+      </p><p>
+        涉及金融、隐私、网络服务与服务器的内容均以合法使用、风险识别、合规说明、常规部署或故障排查为边界。未验证的结论会被标记，而不是伪装为确定答案。
+      </p>
+    </div><div class="mt-8 flex flex-wrap gap-3">
+      <a
+        class="inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm text-white dark:bg-blue-600"
+        href={site.github}
+        target="_blank"
+        rel="noreferrer"><Github class="h-4 w-4" />GitHub</a
+      ><a
+        class="inline-flex items-center gap-2 border border-slate-300 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200"
+        href={`mailto:${site.email}`}><Mail class="h-4 w-4" />联系邮箱</a
+      >
+    </div>
+  </div></BaseLayout
+>

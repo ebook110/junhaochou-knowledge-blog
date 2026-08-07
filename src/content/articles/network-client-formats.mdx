@@ -1,0 +1,55 @@
+---
+title: Clash、sing-box 与订阅格式：从客户端视角理解配置
+description: 比较常见网络客户端的配置表达方式、迁移检查点与合规使用边界。
+slug: network-client-formats
+pubDate: 2026-07-23
+updatedDate: 2026-07-26
+category: network
+tags: [网络, Clash, sing-box, 配置]
+difficulty: 入门
+prerequisites: [了解 JSON 和 YAML 的基本结构]
+environment: [本地客户端, YAML, JSON]
+cover:
+  src: /images/covers/network-client-formats.webp
+  alt: 蓝色网络客户端配置抽象图，包含数据节点和连线
+  focal: 64% center
+featured: false
+toc: true
+lastVerified: 2026-07-26
+author: JunhaoChou
+disclaimer: 网络工具应仅用于合法、授权和符合所在地区及服务条款的网络访问。
+related: [linux-service-checklist]
+---
+
+> **边界说明**：配置格式是技术表达，不改变网络活动本身的合规要求。只导入可信来源提供、且你有权使用的配置。
+
+## 先区分“配置模型”而不是品牌
+
+Clash 生态常见 YAML 配置，侧重代理组、规则与策略组合；sing-box 更常以 JSON 表达入站、出站和路由。两者都可描述网络连接，但字段名称、默认行为和扩展能力不应直接互相复制。
+
+```yaml title="YAML 结构示意"
+proxies: []
+proxy-groups:
+  - name: 自动选择
+    type: url-test
+rules:
+  - MATCH,DIRECT
+```
+
+```json title="JSON 结构示意"
+{
+  "outbounds": [],
+  "route": { "rules": [] }
+}
+```
+
+## 迁移时的四项检查
+
+1. 阅读目标客户端对应版本的官方 schema，不依赖旧教程猜字段。
+2. 检查 DNS、规则顺序和默认出站，避免意外的解析或路由结果。
+3. 使用不含个人令牌的最小示例先做语法校验。
+4. 保留旧配置备份，并记录变更前后的可观测结果，例如解析、连通性和延迟。
+
+## 出现问题先看什么
+
+把“订阅不可用”拆为 URL 访问、格式解析、节点授权和规则命中四个层面。客户端日志通常能指出是 YAML/JSON 解析失败还是 TLS、DNS 或网络连接异常。不要为排查而关闭所有证书校验或导入未知脚本。

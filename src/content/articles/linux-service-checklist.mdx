@@ -1,0 +1,51 @@
+---
+title: Linux 服务故障排查清单：从现象到根因
+description: 用分层检查法定位 Linux 服务不可用问题，先收集证据，再做最小、可回滚的改动。
+slug: linux-service-checklist
+pubDate: 2026-07-26
+updatedDate: 2026-07-29
+category: linux
+tags: [Linux, systemd, 日志, 故障排查]
+series: Linux 运维清单
+seriesOrder: 1
+difficulty: 入门
+prerequisites: [可通过 SSH 或本地终端访问服务器]
+environment: [Ubuntu 24.04 LTS, systemd, journalctl]
+cover:
+  src: /images/covers/linux-service-checklist.webp
+  alt: 绿色 Linux 服务诊断抽象图，包含状态节点与工程网格
+  focal: 64% center
+featured: true
+toc: true
+lastVerified: 2026-07-29
+author: JunhaoChou
+related: [vps-secure-ubuntu, docker-sub2api]
+---
+
+> **排查原则**：先记录症状和时间点，再改变配置。随机重启、清空日志或删除数据目录会破坏证据，也会让回滚更困难。
+
+## 1. 定义“不可用”
+
+确认是进程没启动、端口没监听、反向代理失败、DNS 未生效，还是上游依赖异常。用同一时间点的用户症状、监控结果和日志关联，而不是只凭浏览器报错判断。
+
+```bash title="systemd 与端口检查"
+systemctl status your-service --no-pager
+journalctl -u your-service -n 100 --no-pager
+ss -lntp
+df -h
+free -h
+```
+
+## 2. 从下到上定位
+
+先检查磁盘、内存和系统服务状态，再检查应用日志、监听地址和本机 HTTP 请求，最后检查 Nginx、DNS 与 TLS。每通过一层，就缩小下一层的排查范围。
+
+```bash title="本机与反向代理验证"
+curl -i http://127.0.0.1:8080/healthz
+sudo nginx -t
+sudo systemctl status nginx --no-pager
+```
+
+## 3. 最小变更与复盘
+
+修复前备份配置，修改一次只改变一个假设。恢复服务后记录根因、影响范围、变更命令和预防措施。把高频检查固化为健康检查或发布前清单，比记忆命令更可靠。

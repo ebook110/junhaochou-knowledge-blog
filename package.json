@@ -1,0 +1,42 @@
+{
+  "name": "junhaochou-knowledge-blog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:links": "node scripts/check-links.mjs",
+    "test:e2e": "playwright test",
+    "test": "npm run build && npm run test:links && npm run test:e2e"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.0",
+    "katex": "^0.16.25",
+    "lucide-astro": "^0.556.0",
+    "mermaid": "^11.12.3",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-astro": "^1.5.0",
+    "pagefind": "^1.5.2",
+    "prettier": "^3.7.4",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript-eslint": "^8.66.0",
+    "typescript": "^5.9.3"
+  }
+}

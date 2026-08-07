@@ -1,0 +1,61 @@
+---
+title: 我的个人技术知识库组织方法：让记录能再次被找到
+description: 用固定元数据、有限分类和系列导航，把零散技术记录组织为可检索、可复核的长期知识库。
+slug: knowledge-base-method
+pubDate: 2026-07-28
+updatedDate: 2026-08-01
+category: learning
+tags: [知识库, Markdown, 学习方法, Git]
+series: 仿真工作流
+seriesOrder: 2
+difficulty: 入门
+prerequisites: [基础 Markdown 与 Git 使用经验]
+environment: [Git, Markdown, 静态站点生成器]
+cover:
+  src: /images/covers/knowledge-base-method.webp
+  alt: 蓝色知识库组织抽象图，包含连接节点、网格与层级线条
+  focal: 64% center
+featured: true
+toc: true
+lastVerified: 2026-08-01
+author: JunhaoChou
+related: [ansys-codex-workflow, tools-reliable-resources]
+---
+
+import MermaidDiagram from "../../components/MermaidDiagram.astro";
+
+> **方法提示**：知识库的关键不是记录数量，而是未来的自己能否判断一条信息的来源、适用条件和新旧状态。
+
+## 分类少而稳定，标签具体而克制
+
+一级分类表达长期主题，例如 VPS、仿真或学习项目；标签表达文章中的具体对象，例如 `Docker`、`APDL`、`journalctl`。不要为每次临时想法创建新分类，也不要把整句摘要写成标签。
+
+## 每篇文章写清“验证状态”
+
+发布日期说明内容首次形成时间，更新时间说明正文修订，最后验证日期说明命令或流程最近一次在什么环境中确认过。三者分开，读者才不会误把旧经验当成当前结论。
+
+```markdown title="文章 frontmatter 片段"
+---
+category: linux
+tags: [systemd, 日志]
+lastVerified: 2026-08-01
+related: [linux-service-checklist]
+---
+```
+
+## 系列承载“顺序”，相关文章承载“关联”
+
+系列适合必须按顺序学习的流程，例如从 VPS 安全基线到容器部署；相关文章适合跨主题的补充阅读。两者不要互相替代，否则导航会变得难以预测。
+
+<MermaidDiagram
+  chart={`flowchart LR
+  A[技术记录] --> B[一级分类]
+  B --> C[标签与环境]
+  C --> D[系列或相关文章]
+  D --> E[验证与维护]
+`}
+/>
+
+## 每月一次轻量维护
+
+每月检查失效链接、过期版本和未验证文章。将修订记录写进 Git 提交信息，把重要命令在受控环境复跑。长期维护靠的是小而连续的复核，不是一次性重写。

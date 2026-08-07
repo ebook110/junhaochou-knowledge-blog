@@ -1,0 +1,56 @@
+<script>
+  const progress = document.createElement("div");
+  progress.className = "reading-progress";
+  progress.setAttribute("aria-hidden", "true");
+  document.body.append(progress);
+  document.querySelectorAll<HTMLPreElement>(".prose-article pre").forEach((pre) => {
+    if (pre.querySelector("button")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "复制";
+    button.className =
+      "absolute right-3 top-3 border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-blue-400 hover:text-white";
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(pre.innerText);
+      button.textContent = "已复制";
+      setTimeout(() => (button.textContent = "复制"), 1400);
+    });
+    pre.append(button);
+    const title =
+      pre.dataset.codeTitle ??
+      pre.querySelector<HTMLElement>("[data-code-title]")?.dataset.codeTitle;
+    if (title) {
+      const label = document.createElement("span");
+      label.textContent = title;
+      label.className = "absolute left-3 top-3 text-xs text-slate-400";
+      pre.append(label);
+    }
+  });
+  document.querySelectorAll<HTMLImageElement>(".prose-article img").forEach((image) =>
+    image.addEventListener("click", () => {
+      const dialog = document.createElement("dialog");
+      const expanded = document.createElement("img");
+      dialog.className = "m-auto max-h-[94vh] max-w-[94vw] bg-transparent p-0 backdrop:bg-black/80";
+      expanded.className = "max-h-[94vh] max-w-[94vw]";
+      expanded.src = image.src;
+      expanded.alt = image.alt;
+      dialog.append(expanded);
+      dialog.addEventListener("click", () => dialog.close());
+      dialog.addEventListener("close", () => dialog.remove());
+      document.body.append(dialog);
+      dialog.showModal();
+    }),
+  );
+  const headings = [
+    ...document.querySelectorAll<HTMLElement>(".prose-article h2, .prose-article h3"),
+  ];
+  const links = [...document.querySelectorAll<HTMLAnchorElement>(".toc-link")];
+  const update = () => {
+    const current = headings.filter((h) => h.getBoundingClientRect().top < 150).at(-1)?.id;
+    links.forEach((link) => link.classList.toggle("active", link.hash.slice(1) === current));
+    const distance = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = `scaleX(${distance > 0 ? window.scrollY / distance : 0})`;
+  };
+  document.addEventListener("scroll", update, { passive: true });
+  update();
+</script>

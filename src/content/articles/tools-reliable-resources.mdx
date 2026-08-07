@@ -1,0 +1,44 @@
+---
+title: 工具与资源页如何保持可信：版本、来源与可复现性
+description: 建立技术资源目录时，使用来源、版本、用途和复核日期降低链接失效与信息过期风险。
+slug: tools-reliable-resources
+pubDate: 2026-07-27
+updatedDate: 2026-07-30
+category: tools
+tags: [工具, 资源, 文档, 可复现性]
+difficulty: 入门
+prerequisites: [浏览官方文档的习惯]
+environment: [浏览器, Git, Markdown]
+cover:
+  src: /images/covers/tools-reliable-resources.webp
+  alt: 青蓝色工具资源整理抽象图，包含可复核的数据结构节点
+  focal: 64% center
+featured: false
+toc: true
+lastVerified: 2026-07-30
+author: JunhaoChou
+related: [linux-service-checklist, knowledge-base-method]
+---
+
+> **可信来源提示**：工具页的价值不在于堆链接，而在于说明“为什么推荐、适用于什么版本、何时最后验证”。优先链接官方文档和原始项目地址。
+
+## 资源条目的最小字段
+
+每一条资源至少记录名称、用途、官方来源、适用环境、限制条件和最后复核日期。将推广链接、个人经验和官方事实明确区分，避免读者把评论当成保证。
+
+```json title="资源条目结构示意"
+{
+  "name": "Docker Documentation",
+  "purpose": "容器构建与部署参考",
+  "source": "https://docs.docker.com/",
+  "verified": "2026-07-30"
+}
+```
+
+## 版本优先于截图
+
+截图很快过时，命令更可能因版本变化而失效。引用工具时写清版本范围和验证环境；未能复核的内容应标识为“待验证”，而不是假装仍然有效。
+
+## 链接维护流程
+
+在 CI 中检查内部链接，在发布前抽查外部关键链接。被移除的工具不要直接删除历史上下文，应保留替代方案和变更日期，让读者理解内容为什么调整。

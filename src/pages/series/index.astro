@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPublishedArticles } from "../../utils/articles";
+const articles = await getPublishedArticles();
+const series = [
+  ...new Set(articles.map((article) => article.data.series).filter(Boolean)),
+] as string[];
+---
+
+<BaseLayout title="系列教程" description="按前置顺序组织的技术教程。"
+  ><div class="container py-10">
+    <p class="subtle">按顺序阅读，按主题复用</p><h1
+      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      系列教程
+    </h1><div class="mt-7 grid gap-4 md:grid-cols-2">
+      {
+        series.map((name) => (
+          <a
+            class="surface p-5 hover:border-blue-400"
+            href={`/series/${encodeURIComponent(name)}/`}
+          >
+            <>
+              <h2 class="font-semibold text-slate-900 dark:text-white">{name}</h2>
+              <p class="mt-2 text-sm text-slate-500">
+                {articles.filter((article) => article.data.series === name).length}{" "}
+                个步骤，附环境与验证信息。
+              </p>
+            </>
+          </a>
+        ))
+      }
+    </div>
+  </div></BaseLayout
+>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categories } from "../../data/site";
+import { getPublishedArticles } from "../../utils/articles";
+const articles = await getPublishedArticles();
+---
+
+<BaseLayout title="文章分类" description="按长期主题浏览技术文章。"
+  ><div class="container py-10">
+    <p class="subtle">稳定主题，具体内容以标签补充</p><h1
+      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
+    >
+      文章分类
+    </h1><div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        categories.map((category) => (
+          <a class="surface p-5 hover:border-blue-400" href={`/categories/${category.slug}/`}>
+            <>
+              <p class="font-semibold text-slate-900 dark:text-white">{category.name}</p>
+              <p class="mt-2 text-sm text-slate-500">{category.description}</p>
+              <p class="mt-5 text-sm text-blue-600">
+                {articles.filter((article) => article.data.category === category.slug).length}{" "}
+                篇文章
+              </p>
+            </>
+          </a>
+        ))
+      }
+    </div>
+  </div></BaseLayout
+>

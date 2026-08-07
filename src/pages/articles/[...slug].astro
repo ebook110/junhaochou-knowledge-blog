@@ -1,0 +1,260 @@
+---
+import { render } from "astro:content";
+import { Calendar, Clock3, ShieldCheck, Tag } from "lucide-astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import ArticleEnhancements from "../../components/ArticleEnhancements.astro";
+import Giscus from "../../components/Giscus.astro";
+import CoverImage from "../../components/CoverImage.astro";
+import MobileToc from "../../components/MobileToc.astro";
+import { categories, site } from "../../data/site";
+import { bySeries, getPublishedArticles, readingMinutes } from "../../utils/articles";
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return articles.map((article) => ({ params: { slug: article.data.slug }, props: { article } }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+const articles = await getPublishedArticles();
+const category = categories.find((item) => item.slug === article.data.category)!;
+const index = articles.findIndex((item) => item.id === article.id);
+const adjacent = { newer: articles[index - 1], older: articles[index + 1] };
+const series = article.data.series ? bySeries(articles, article.data.series) : [];
+const related = articles
+  .filter((item) => article.data.related.includes(item.data.slug))
+  .slice(0, 3);
+const minutes = readingMinutes(article.body ?? "");
+const tocHeadings = headings.filter((heading) => heading.depth < 4);
+const articleUrl = new URL(`/articles/${article.data.slug}/`, site.url).toString();
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: article.data.title,
+  description: article.data.description,
+  datePublished: article.data.pubDate.toISOString(),
+  dateModified: (article.data.updatedDate ?? article.data.pubDate).toISOString(),
+  author: { "@type": "Person", name: article.data.author },
+  mainEntityOfPage: articleUrl,
+};
+---
+
+<BaseLayout
+  title={article.data.title}
+  description={article.data.description}
+  canonical={article.data.canonical ?? articleUrl}
+  image={article.data.cover.src}
+  jsonLd={jsonLd}
+>
+  <div class="container py-8 lg:py-10">
+    <div class="grid gap-8 xl:grid-cols-[minmax(0,800px)_300px]">
+      <article class="min-w-0">
+        <nav class="text-xs text-slate-500" aria-label="面包屑">
+          <a class="hover:text-blue-600" href="/">首页</a> / <a
+            class="hover:text-blue-600"
+            href="/articles/">文章</a
+          > / <a class="hover:text-blue-600" href={`/categories/${category.slug}/`}
+            >{category.name}</a
+          >
+        </nav><header class="mt-5 border-b border-slate-200 pb-7 dark:border-slate-800">
+          <a
+            class="text-sm font-medium text-blue-600 dark:text-blue-400"
+            href={`/categories/${category.slug}/`}>{category.name}</a
+          ><h1
+            class="mt-3 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl dark:text-white"
+          >
+            {article.data.title}
+          </h1><p class="mt-5 text-base leading-8 text-slate-600 dark:text-slate-300">
+            {article.data.description}
+          </p><div
+            class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-400"
+          >
+            <span class="inline-flex items-center gap-1.5"
+              ><Calendar class="h-4 w-4" />发布于 {
+                article.data.pubDate.toLocaleDateString("zh-CN")
+              }</span
+            ><span class="inline-flex items-center gap-1.5"
+              ><Clock3 class="h-4 w-4" />预计 {minutes} 分钟</span
+            ><span class="inline-flex items-center gap-1.5"
+              ><ShieldCheck class="h-4 w-4" />最后验证 {
+                article.data.lastVerified?.toLocaleDateString("zh-CN") ?? "未标注"
+              }</span
+            >
+          </div>
+        </header><div class="cover-frame mt-7 h-52 sm:h-72">
+          <CoverImage
+            src={article.data.cover.src}
+            alt={article.data.cover.alt}
+            class="h-full w-full"
+            loading="eager"
+            focal={article.data.cover.focal}
+          />
+          <div
+            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent p-6"
+          >
+            <p class="max-w-md text-sm leading-6 text-blue-100">
+              {article.data.environment.join(" · ")}
+            </p>
+          </div>
+        </div>
+      </article><MobileToc headings={tocHeadings} /><div
+        class="prose-article mt-8"
+        data-pagefind-body
+      >
+        <Content />
+      </div>{
+        article.data.disclaimer && (
+          <section class="mt-8 border-l-4 border-amber-500 bg-amber-50 p-5 text-sm leading-7 text-slate-700 dark:bg-amber-950/30 dark:text-slate-200">
+            <strong>免责声明：</strong>
+            {article.data.disclaimer}
+          </section>
+        )
+      }<section
+        class="mt-10 grid gap-4 border-t border-slate-200 pt-8 sm:grid-cols-2 dark:border-slate-800"
+      >
+        {
+          adjacent.newer ? (
+            <a
+              class="surface p-4 hover:border-blue-400"
+              href={`/articles/${adjacent.newer.data.slug}/`}
+            >
+              <>
+                <span class="subtle">上一篇</span>
+                <span class="mt-2 block font-medium text-slate-900 dark:text-white">
+                  {adjacent.newer.data.title}
+                </span>
+              </>
+            </a>
+          ) : (
+            <div />
+          )
+        }{
+          adjacent.older && (
+            <a
+              class="surface p-4 text-right hover:border-blue-400"
+              href={`/articles/${adjacent.older.data.slug}/`}
+            >
+              <>
+                <span class="subtle">下一篇</span>
+                <span class="mt-2 block font-medium text-slate-900 dark:text-white">
+                  {adjacent.older.data.title}
+                </span>
+              </>
+            </a>
+          )
+        }
+      </section>{
+        related.length > 0 && (
+          <section class="mt-10">
+            <>
+              <h2 class="section-title">相关文章</h2>
+              <div class="mt-4 grid gap-4 md:grid-cols-2">
+                {related.map((item) => (
+                  <ArticleCard article={item} />
+                ))}
+              </div>
+            </>
+          </section>
+        )
+      }
+    </div><aside class="hidden xl:block">
+      <div class="sticky top-24 space-y-5">
+        <section class="surface p-4">
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">本页目录</p><nav
+            class="mt-3"
+            aria-label="文章目录"
+          >
+            {
+              tocHeadings.map((heading) => (
+                <a
+                  class:list={["toc-link", heading.depth === 3 ? "ml-3" : ""]}
+                  href={`#${heading.slug}`}
+                >
+                  {heading.text}
+                </a>
+              ))
+            }
+          </nav>
+        </section><section class="surface p-4">
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">文章信息</p><dl
+            class="mt-3 space-y-3 text-sm"
+          >
+            <div>
+              <dt class="text-slate-400">难度</dt><dd
+                class="mt-1 text-slate-700 dark:text-slate-200"
+              >
+                {article.data.difficulty}
+              </dd>
+            </div><div>
+              <dt class="text-slate-400">前置条件</dt><dd
+                class="mt-1 text-slate-700 dark:text-slate-200"
+              >
+                {article.data.prerequisites.join("、") || "无"}
+              </dd>
+            </div><div>
+              <dt class="text-slate-400">环境</dt><dd
+                class="mt-1 text-slate-700 dark:text-slate-200"
+              >
+                {article.data.environment.join("、") || "未标注"}
+              </dd>
+            </div>{
+              article.data.series && (
+                <div>
+                  <>
+                    <dt class="text-slate-400">系列进度</dt>
+                    <dd class="mt-1 text-slate-700 dark:text-slate-200">
+                      {article.data.series} ·{" "}
+                      {series.findIndex((item) => item.id === article.id) + 1}/{series.length}
+                    </dd>
+                  </>
+                </div>
+              )
+            }
+          </dl>
+        </section><section class="surface p-4">
+          <p class="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
+            <Tag class="h-4 w-4" />标签
+          </p><div class="mt-3 flex flex-wrap gap-2">
+            {
+              article.data.tags.map((tag) => (
+                <a
+                  class="border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
+                  href={`/tags/${tag}/`}
+                >
+                  {tag}
+                </a>
+              ))
+            }
+          </div>
+        </section>{
+          article.data.series && (
+            <section class="surface p-4">
+              <>
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">系列导航</p>
+                <ol class="mt-3 space-y-2">
+                  {series.map((item, position) => (
+                    <li>
+                      <a
+                        class:list={[
+                          "text-sm hover:text-blue-600",
+                          item.id === article.id
+                            ? "font-semibold text-blue-600"
+                            : "text-slate-600 dark:text-slate-300",
+                        ]}
+                        href={`/articles/${item.data.slug}/`}
+                      >
+                        {position + 1}. {item.data.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            </section>
+          )
+        }
+      </div>
+    </aside>
+  </div>
+</BaseLayout><ArticleEnhancements />
+<div class="container"><div class="xl:max-w-[800px]"><Giscus /></div></div>

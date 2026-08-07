@@ -1,0 +1,19 @@
+---
+import { Moon, Sun } from "lucide-astro";
+---
+
+<button
+  id="theme-toggle"
+  class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
+  aria-label="切换深浅色模式"
+>
+  <Sun class="h-4 w-4 dark:hidden" />
+  <Moon class="hidden h-4 w-4 dark:block" />
+</button>
+<script>
+  const button = document.querySelector<HTMLButtonElement>("#theme-toggle");
+  button?.addEventListener("click", () => {
+    const dark = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("junhao-theme", dark ? "dark" : "light");
+  });
+</script>

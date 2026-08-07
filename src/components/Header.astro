@@ -1,0 +1,65 @@
+---
+import { Menu, Search } from "lucide-astro";
+import { navigation, site } from "../data/site";
+import ThemeToggle from "./ThemeToggle.astro";
+---
+
+<header
+  class="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
+>
+  <div class="container flex h-16 items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2 font-semibold text-slate-950 dark:text-white"
+      ><span class="grid h-8 w-8 place-items-center bg-blue-600 text-sm text-white">J</span>{
+        site.name
+      }</a
+    >
+    <nav class="hidden items-center gap-6 md:flex" aria-label="主导航">
+      {
+        navigation.map((item) => (
+          <a
+            class="text-sm text-slate-600 hover:text-blue-600 dark:text-slate-300"
+            href={item.href}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="flex items-center gap-2">
+      <button
+        data-search-open
+        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
+        aria-label="搜索文章"><Search class="h-4 w-4" /></button
+      >
+      <ThemeToggle />
+      <button
+        id="mobile-menu-button"
+        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 md:hidden dark:border-slate-700 dark:text-slate-300"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-label="打开导航"><Menu class="h-4 w-4" /></button
+      >
+    </div>
+  </div>
+  <nav
+    id="mobile-menu"
+    class="container hidden border-t border-slate-200 py-3 md:hidden dark:border-slate-800"
+    aria-label="移动导航"
+  >
+    {
+      navigation.map((item) => (
+        <a class="block px-2 py-2 text-sm text-slate-700 dark:text-slate-200" href={item.href}>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+<script>
+  const button = document.querySelector<HTMLButtonElement>("#mobile-menu-button");
+  const menu = document.querySelector<HTMLElement>("#mobile-menu");
+  button?.addEventListener("click", () => {
+    const open = menu?.classList.toggle("hidden") === false;
+    button.setAttribute("aria-expanded", String(open));
+  });
+</script>

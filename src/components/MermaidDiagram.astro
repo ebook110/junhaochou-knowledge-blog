@@ -1,0 +1,30 @@
+---
+interface Props {
+  chart: string;
+}
+const { chart } = Astro.props;
+---
+
+<div
+  class="my-7 overflow-auto border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
+  data-mermaid-chart={chart}
+>
+</div>
+<script>
+  import mermaid from "mermaid";
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
+    securityLevel: "strict",
+  });
+  document.querySelectorAll<HTMLElement>("[data-mermaid-chart]").forEach(async (element, index) => {
+    const source = element.dataset.mermaidChart;
+    if (!source) return;
+    try {
+      const result = await mermaid.render(`mermaid-${index}`, source);
+      element.innerHTML = result.svg;
+    } catch {
+      element.textContent = "图表渲染失败，请检查 Mermaid 语法。";
+    }
+  });
+</script>
