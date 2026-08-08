@@ -107,12 +107,43 @@ function failure(message: string, status = 400): Response {
   );
 }
 
+function authorizationHandshake(
+  provider: string,
+  authorizeUrl: string,
+  cmsOrigin: string,
+): Response {
+  const handshake = `authorizing:${provider}`;
+  const script = `
+const expectedOrigin = ${jsonForInlineScript(cmsOrigin)};
+const handshake = ${jsonForInlineScript(handshake)};
+const authorizeUrl = ${jsonForInlineScript(authorizeUrl)};
+const startAuthorization = () => window.location.replace(authorizeUrl);
+
+if (!window.opener) {
+  startAuthorization();
+} else {
+  const onMessage = (event) => {
+    if (event.origin !== expectedOrigin || event.data !== handshake) return;
+    window.removeEventListener("message", onMessage);
+    startAuthorization();
+  };
+  window.addEventListener("message", onMessage);
+  window.opener.postMessage(handshake, expectedOrigin);
+}`;
+  return responseHtml(
+    `<!doctype html><title>Authorizing</title><script>${script}</script><p>Authorizing with GitHub.</p>`,
+  );
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const callbackUrl = new URL("/callback", url.origin).toString();
 
     if (url.pathname === "/auth" && request.method === "GET") {
+      const provider = url.searchParams.get("provider") ?? "github";
+      if (provider !== "github") return failure("Unsupported OAuth provider.");
+
       const state = await createState(env.GITHUB_CLIENT_SECRET);
       const authorizeUrl = new URL("https://github.com/login/oauth/authorize");
       authorizeUrl.search = new URLSearchParams({
@@ -121,14 +152,12 @@ export default {
         scope: "repo",
         state,
       }).toString();
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: authorizeUrl.toString(),
-          "Cache-Control": "no-store",
-          "Set-Cookie": `decap_oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Path=/callback; Max-Age=${STATE_TTL_SECONDS}`,
-        },
-      });
+      const response = authorizationHandshake(provider, authorizeUrl.toString(), env.CMS_ORIGIN);
+      response.headers.set(
+        "Set-Cookie",
+        `decap_oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Path=/callback; Max-Age=${STATE_TTL_SECONDS}`,
+      );
+      return response;
     }
 
     if (url.pathname === "/callback" && request.method === "GET") {
