@@ -1,13 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
+
+const port = process.env.PLAYWRIGHT_PORT ?? "4321";
+
 export default defineConfig({
   testDir: "./tests",
   use: {
-    baseURL: "http://127.0.0.1:4321",
+    baseURL: `http://127.0.0.1:${port}`,
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm.cmd run preview -- --host 127.0.0.1 --port 4321",
-    port: 4321,
+    command: `npm run preview -- --host 127.0.0.1 --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
     reuseExistingServer: !process.env.CI,
   },
   projects: [
