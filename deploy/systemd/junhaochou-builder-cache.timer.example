@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly JunhaoChou Docker builder cache maintenance
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

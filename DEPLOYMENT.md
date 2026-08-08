@@ -20,6 +20,8 @@ curl -fsS http://127.0.0.1:8081/healthz/
 
 在 Cloudflare DNS 添加 `junhaochou.com` 和 `www` 的 A/AAAA 记录指向 VPS；SSL/TLS 使用 Full (strict)，确认源站证书有效。启用基础 DDoS 防护与缓存规则，但不要缓存 HTML 太久；静态资源由容器的缓存头控制。不要把 Cloudflare API Token 写进仓库或 GitHub Actions。
 
+缓存响应头只由 Docker Nginx 生成，宿主 Nginx 应保持透明反代。`/_astro/`、`/images/` 与 `/fonts/` 可缓存 30 天，`/pagefind/` 只能短缓存，HTML 使用 `no-cache`，`/admin/` 必须使用 `no-store` 且在 Cloudflare Bypass Cache。完整的响应头矩阵、Cloudflare Dashboard 手工 Cache Rules 和验证命令见 [docs/cache-policy.md](docs/cache-policy.md)。不要通过 Cloudflare API 自动修改生产账号。
+
 ## 4. 更新与回滚
 
 更新前执行 `git status`、`git pull --ff-only`、`docker compose build`；启动后检查 `/healthz/` 和首页。保留上一个镜像标签：若出现问题，将 Git 工作树回到上一个已验证提交（使用非破坏性的分支或 `git revert`），重新构建并 `docker compose up -d`。不要通过删除卷或执行批量删除来处理构建异常。
@@ -27,6 +29,8 @@ curl -fsS http://127.0.0.1:8081/healthz/
 ## 5. 日志与维护
 
 查看容器日志：`docker compose logs --tail=100 junhaochou-blog`；查看代理日志：`sudo journalctl -u nginx -n 100 --no-pager`。每月更新系统和镜像，在更新窗口后复查站点、RSS、搜索与证书续期。
+
+Docker builder cache 维护前先执行 `docker system df`。首次只允许管理员手动运行 `docker builder prune --filter "until=720h"` 并确认提示；禁止 `docker system prune -a`、`docker volume prune` 和 `docker image prune -a`。可选的每周 systemd timer 示例位于 `deploy/systemd/`，安装前必须先阅读 [docs/cache-policy.md](docs/cache-policy.md)，它只能清理 30 天以上 builder cache，不能触碰容器、镜像、卷、Git 或项目内容。
 
 ## 6. `/admin/`、OAuth 与 Access
 

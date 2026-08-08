@@ -4,6 +4,7 @@ backend:
   branch: main
   base_url: https://junhaochou-decap-oauth.junhaochou-knowledge.workers.dev
   auth_endpoint: auth
+  squash_merges: true
 
 publish_mode: editorial_workflow
 site_url: https://junhaochou.com
@@ -17,10 +18,20 @@ collections:
     label_singular: 文章
     folder: src/content/articles
     create: true
+    delete: true
     extension: mdx
     format: frontmatter
     slug: "{{slug}}"
     preview_path: "articles/{{slug}}"
+    summary: "{{title}} | {{category}} | draft={{draft}} | {{pubDate}}"
+    sortable_fields: [title, category, draft, featured, pubDate, updatedDate, lastVerified]
+    view_filters:
+      - { label: "草稿", field: draft, pattern: true }
+      - { label: "已发布", field: draft, pattern: false }
+      - { label: "首页精选", field: featured, pattern: true }
+    view_groups:
+      - { label: "分类", field: category }
+      - { label: "草稿状态", field: draft }
     editor:
       preview: false
     fields:

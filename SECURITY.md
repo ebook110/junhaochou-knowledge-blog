@@ -12,6 +12,12 @@ Giscus 与统计脚本可选启用；未配置时页面不加载相应第三方�
 
 优先使用独立的部署用户和 SSH 密钥，不使用密码认证或个人日常私钥。GitHub 仅保存部署所需的 Actions secrets；VPS 访问私有仓库时使用最小权限、只读的 Deploy Key。为 GitHub 管理员账号开启双因素认证，并定期复核仓库写入权限和 Deploy Key。
 
+## 缓存与 Docker 维护
+
+`/admin/` 的浏览器和边缘缓存必须禁用；HTML 不得设置 30 天缓存。缓存策略由 Docker Nginx 统一发出，宿主 Nginx 不应覆盖它。Cloudflare 仅能按 [docs/cache-policy.md](docs/cache-policy.md) 中的人工 Cache Rules 配置，后台优先 Bypass Cache。
+
+磁盘维护只允许检查 `docker system df`，以及在管理员确认后清理超过 30 天的 builder cache。禁止使用 `docker system prune -a`、`docker volume prune`、`docker image prune -a`，也不得用缓存维护操作删除容器、镜像、卷、Git 数据、文章、图片或项目目录。
+
 ## `/admin/` 与 GitHub OAuth
 
 `/admin/` 不是公开内容入口。上线前应使用 Cloudflare Zero Trust Access 为 `junhaochou.com/admin/*` 配置 Allow 策略，仅允许管理员邮箱或审批过的身份提供商组访问。Access 是 GitHub OAuth 之前的一层防护，不能替代 GitHub 账号本身的权限控制。

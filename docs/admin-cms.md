@@ -1,33 +1,33 @@
-# Web CMS Publishing
+# Decap CMS 文章管理
 
-The public site remains a static Astro build. Decap CMS is only a browser interface for committing Markdown or MDX and Git-managed WebP images to this repository.
+公开站点仍是 Astro 静态构建。Decap CMS 只是浏览器中的 Git 编辑界面：文章和封面最终仍分别存放在 `src/content/articles/` 与 `public/images/covers/`，Git 是唯一内容事实来源。
 
-## Access and workflow
+## 访问与 Editorial Workflow
 
-1. Visit `https://junhaochou.com/admin/` after Cloudflare Access and the OAuth Worker are configured.
-2. Sign in with the authorized GitHub account.
-3. Create or edit an item in **文章**. The collection writes to `src/content/articles/` and uses the existing Astro `articles` schema.
-4. Save work as a draft, then move it through Decap's Editorial Workflow: Draft, In Review, Ready, Publish.
-5. Decap creates a Git branch and pull request. The pull request runs the existing CI workflow.
-6. Merge the reviewed pull request into `main`. Only a successful `main` verification job can run the VPS deployment job.
+1. 通过 Cloudflare Access 访问 `https://junhaochou.com/admin/`。
+2. 使用获授权的 GitHub 账号登录。
+3. 在 **文章** 集合中创建或编辑 MDX 文章。
+4. 使用 Decap Editorial Workflow 将内容依次推进：Draft、In Review、Ready、Publish。
+5. Decap 为变更创建 Git 草稿分支和 Pull Request；`squash_merges: true` 让已发布的 CMS 变更以可读的单个提交进入 `main`。
+6. Pull Request 的 CI 必须通过。变更进入 `main` 后，GitHub Actions 才会部署生产站点。
 
-## Content rules
+## CRUD 行为
 
-- Keep the URL slug stable, lower-case and ASCII.
-- Categories are fixed to the eight existing category slugs. Tags remain free-form lists.
-- The editor keeps article bodies as Markdown or MDX source. Do not rely on a WYSIWYG editor to rewrite custom components such as `MermaidDiagram`.
-- Cover uploads are Git-managed WebP files in `public/images/covers/`. Every cover needs Chinese alternative text; the current Astro schema rejects other cover paths and file extensions.
-- Use `draft: true` for unpublished content. Astro excludes drafts from the public pages, RSS and Pagefind output.
+- **Create**：使用“新建文章”创建 MDX。`create: true` 保持启用，文件夹和扩展名不变。
+- **Read**：使用集合顶部的搜索框按文章标识字段 `title` 查找条目；列表显示标题、分类、草稿状态和发布日期，可按标题、分类、草稿、精选、发布日期、更新日期和最后验证日期排序，并可筛选草稿、已发布和首页精选内容。
+- **Update**：编辑现有条目后继续走 Editorial Workflow。不要为适配后台修改 Astro Content Collections schema。
+- **Delete**：集合保留 `delete: true`。删除会形成 Git 可追踪的变更，必须经过相同的分支、Pull Request、CI 和 `main` 发布流程。
 
-## Required configuration
+普通下线优先将 `draft` 设置为 `true`。Astro 会将草稿排除在公开页面、RSS、sitemap 和 Pagefind 之外，同时保留文章的 Git 历史。只有确认不再需要文章文件时才使用 **Delete**；本站没有自动删除文章的机制。
 
-`public/admin/config.yml` deliberately contains two placeholders because this local repository has no configured Git remote:
+## 内容规则
 
-- `YOUR_GITHUB_USERNAME/YOUR_REPOSITORY`
-- `https://YOUR_OAUTH_WORKER.YOUR_SUBDOMAIN.workers.dev`
+- URL slug 保持小写 ASCII 且稳定；分类只能使用现有八个分类 slug。
+- `tags` 保持自由文本列表，`featured` 只用于首页精选，`lastVerified` 用于记录最后人工验证日期。
+- 编辑器保留 Markdown/MDX 源码，不用富文本编辑器改写 `MermaidDiagram` 等自定义组件。
+- 封面上传到 `public/images/covers/`，必须是 WebP 并填写中文 alt。Astro schema 会拒绝其他封面路径和扩展名。
+- 不要用相同文件名覆盖已缓存的图片。新图片使用新文件名，旧资源由 Git 历史保留。
 
-Replace both values after the GitHub repository and Cloudflare Worker are created. Do not put GitHub tokens or OAuth secrets in this file.
+## 发布前验证
 
-## Validation
-
-Before merging CMS-generated pull requests, CI runs formatting, linting, Astro Content Collection validation, the production build with Pagefind, link checks, Playwright tests and Docker Compose configuration validation.
+CMS 生成的 Pull Request 与直接推送一样会运行格式、lint、Astro Content Collections 校验、生产构建与 Pagefind、链接检查、Playwright 和 Docker Compose 配置校验。`main` 的 verify 成功后才允许生产部署。

@@ -29,7 +29,7 @@ npm.cmd run test
 1. **CLI**：在 `src/content/articles/` 新建或修改 `.mdx`，按 [CONTENT_GUIDE.md](CONTENT_GUIDE.md) 填写前置数据，再运行 `npm.cmd run test`。
 2. **Web CMS**：在完成安全配置后访问 `https://junhaochou.com/admin/`，登录 GitHub，新建或修改文章，依次经过 Draft、In Review、Ready、Publish。Decap 会创建 Git 分支和 Pull Request；PR 通过 CI 并合并至 `main` 后，GitHub Actions 才会部署到 VPS。
 
-Web CMS 的字段、图片和草稿规则见 [docs/admin-cms.md](docs/admin-cms.md)。`public/admin/config.yml` 的仓库名与 OAuth Worker 地址是占位符，部署前必须替换；不得将令牌或 OAuth secret 写入该文件。
+Web CMS 的字段、图片、草稿与删除规则见 [docs/admin-cms.md](docs/admin-cms.md)。`public/admin/config.yml` 必须始终指向当前 GitHub 仓库和 OAuth Worker；不得将令牌或 OAuth secret 写入该文件。缓存与 Cloudflare 手工规则见 [docs/cache-policy.md](docs/cache-policy.md)。
 
 ## 发布
 

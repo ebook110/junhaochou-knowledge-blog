@@ -1,0 +1,10 @@
+[Unit]
+Description=Inspect and prune JunhaoChou Docker builder cache older than 30 days
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/docker system df
+# This service only removes builder cache. It never prunes containers, images, or volumes.
+ExecStart=/usr/bin/docker builder prune --force --filter until=720h
