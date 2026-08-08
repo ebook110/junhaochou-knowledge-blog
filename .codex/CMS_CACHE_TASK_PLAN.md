@@ -21,7 +21,7 @@ Incrementally improve Decap article management and cache lifecycle controls with
 
 ## Status
 
-Currently in Phase 5: committing the verified change set and awaiting the existing CI deployment.
+Currently in Phase 5: committing the Cloudflare Pagefind rule clarification and awaiting the final documentation deployment.
 
 ## Errors Encountered
 
@@ -29,3 +29,4 @@ Currently in Phase 5: committing the verified change set and awaiting the existi
 - `format:check` identified only `docs/cache-policy.md`; apply Prettier and rerun before release.
 - `CI=true npm.cmd run test` completed build and link checks, but Playwright's Windows web-server process invoked `npm` and exited early under the local execution policy. The preview command is now platform-aware; rerun E2E.
 - Direct preview inspection showed the actual cause: an existing Astro preview for this workspace owns the preview session and refuses a second server, even on another port. The platform-aware Playwright change was reverted to keep scope narrow; reuse the existing 4321 preview after the current build.
+- Browser UI recheck could not start because the installed Chrome skill has no `scripts/browser-client.mjs` runtime. No browser fallback was used; production CMS config and the prior OAuth acceptance remain the evidence for CMS behavior.

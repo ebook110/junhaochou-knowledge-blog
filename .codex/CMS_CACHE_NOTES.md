@@ -14,4 +14,5 @@
 - Full build passed: 62 static routes, Pagefind indexed 53 pages, and 63 internal HTML files passed the link check.
 - All 32 Playwright desktop and mobile tests passed against the existing refreshed Astro preview on port 4321. A second Astro preview is intentionally not started because Astro holds a workspace-level preview session lock.
 - A temporary Docker Compose project on loopback port 8082 verified: HTML `no-cache`; `/_astro/` and `/images/` `max-age=2592000`; `/pagefind/` `max-age=600`; and `/admin/` plus `config.yml` `private, no-store, no-cache, must-revalidate`.
-- Production verification remains pending the normal GitHub Actions verify and deploy jobs.
+- GitHub Actions verify and deploy succeeded for `ca17c2f`; the VPS container is healthy and source headers match the local matrix. `docker system df` reports 3.302 GB build cache; no cleanup was run.
+- Public Cloudflare headers match HTML and Astro resource policy. An existing Cloudflare cache setting rewrites public Pagefind browser caching to four hours despite the source's 600-second header, so `docs/cache-policy.md` now requires a higher-priority manual 10-minute Pagefind rule.

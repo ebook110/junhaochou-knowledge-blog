@@ -12,6 +12,9 @@
 - Format, lint, Astro check, build, Pagefind, links and 32 Playwright tests passed.
 - Docker header checks passed for HTML, Astro assets, images, Pagefind, admin and the CMS YAML configuration.
 
-## Pending
+## Production Verification
 
-- GitHub Actions verification, deployment and production header inspection after the change is pushed.
+- GitHub Actions verify and deploy succeeded for `ca17c2f`; the VPS container is healthy and runs that revision.
+- Source and local container headers match the documented matrix. Unauthenticated public `/admin/` correctly enters Cloudflare Access.
+- Cloudflare currently rewrites public `/pagefind/` browser caching to four hours. The source is already 600 seconds; an administrator must add the documented manual Rule 3 to enforce the intended public lifetime.
+- Browser-level Decap UI reinspection was not available in this run because the installed Chrome control skill lacks its required local runtime. No CMS content was changed; source configuration, prior OAuth acceptance, and local build verification remain valid.

@@ -38,6 +38,15 @@ Cloudflare 的 **Browser TTL** 告诉访问者浏览器可保留响应多久；*
 
 不要把 `/pagefind/`、HTML 页面、RSS、sitemap、robots 或 `/admin/` 加入 Rule 2。发布新封面或手工替换的图片时使用新文件名；若必须替换既有文件，应由管理员在 Cloudflare 控制台对该精确 URL 做手工 purge，而不是扩大整站缓存。
 
+### Rule 3: Pagefind short cache
+
+- 名称：`Pagefind ten minutes`
+- 条件：`http.request.uri.path starts_with "/pagefind/"`
+- Browser TTL：**10 minutes**
+- Edge TTL：**10 minutes**
+
+如果账号中存在全站 Browser TTL 或 Cache Rule，这条规则必须置于会匹配 `/pagefind/` 的通用规则之前。它覆盖 Pagefind 的 30 天或数小时缓存，确保新文章的搜索索引在短时间内刷新。
+
 ## 验证
 
 部署后从已完成 Cloudflare Access 的会话检查后台；未授权 `curl -I /admin/` 返回 Access 登录重定向是预期行为。其他路径可用：
