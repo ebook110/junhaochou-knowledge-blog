@@ -11,11 +11,15 @@ Add Decap CMS, GitHub OAuth proxy templates, editorial workflow, CI and safe pro
 - [x] Add Cloudflare Worker OAuth proxy template and security guidance.
 - [x] Extend CI and add guarded production deployment workflow.
 - [x] Update operational documentation and automated tests.
-- [ ] Run release and Docker verification, then review the worktree.
+- [x] Run release and Docker verification, then review the worktree.
+- [ ] Synchronize the final external-setup status commit to `origin/main`.
+- [x] Configure Cloudflare Access for `/admin/*` with one-time email verification.
+- [ ] Provision the Ubuntu 24.04 VPS, Cloudflare Origin CA TLS, and GitHub Actions deployment secrets.
+- [ ] Run the first production deployment and verify CMS login plus public endpoints.
 
 ## Decisions
 
-- Repository owner/name is unknown because no Git remote is configured; use `YOUR_GITHUB_USERNAME/YOUR_REPOSITORY` in Decap configuration.
+- Repository is `ebook110/junhaochou-knowledge-blog` on `main`; Decap points to its deployed Worker origin.
 - The public site remains static and Git-managed. No database, server API, user accounts or Astro SSR will be introduced.
 - OAuth secrets remain Cloudflare Worker secrets; deployment values remain GitHub Actions secrets.
 
@@ -25,4 +29,4 @@ Add Decap CMS, GitHub OAuth proxy templates, editorial workflow, CI and safe pro
 
 ## Status
 
-Completed. Release, browser, Docker, static SEO and worktree checks passed; required external Cloudflare, GitHub and VPS setup remains documented for the operator.
+**Currently in production infrastructure setup** - Cloudflare Access protects `/admin/*`; VPS connection details are required before creating the deployment user, Origin CA certificate, DNS records, and Actions secrets.
