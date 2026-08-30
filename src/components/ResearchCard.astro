@@ -1,0 +1,45 @@
+---
+import { ArrowUpRight } from "lucide-astro";
+import { getDomain } from "../data/site";
+import { researchStatusLabels, type ResearchEntry } from "../utils/content";
+
+interface Props {
+  entry: ResearchEntry;
+}
+
+const { entry } = Astro.props;
+const domain = getDomain(entry.data.domain);
+---
+
+<article class="surface flex h-full flex-col p-5 sm:p-6">
+  <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+    <span class="font-semibold text-[var(--site-cobalt)]">{domain.name}</span>
+    <span class="text-[var(--site-faint)]">{researchStatusLabels[entry.data.status]}</span>
+  </div>
+  <h2 class="mt-5 text-xl font-semibold leading-snug text-[var(--site-ink)]">
+    <a class="hover:text-[var(--site-cobalt)]" href={`/research/${entry.data.slug}/`}>
+      {entry.data.title}
+    </a>
+  </h2>
+  <p class="mt-3 text-sm leading-7 text-[var(--site-muted)]">{entry.data.summary}</p>
+  <p
+    class="mt-6 border-l border-[var(--site-cobalt)] pl-3 text-sm leading-6 text-[var(--site-ink-soft)]"
+  >
+    {entry.data.questions[0]}
+  </p>
+  <div class="mt-6 flex flex-wrap gap-2" aria-label="研究方法">
+    {
+      entry.data.methods.map((method) => (
+        <span class="border border-[var(--site-line)] px-2.5 py-1 text-xs text-[var(--site-muted)]">
+          {method}
+        </span>
+      ))
+    }
+  </div>
+  <a
+    class="mt-auto inline-flex min-h-11 items-center gap-2 pt-7 text-sm font-semibold text-[var(--site-cobalt)] hover:text-[var(--site-cobalt-strong)]"
+    href={`/research/${entry.data.slug}/`}
+  >
+    查看研究方向 <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+  </a>
+</article>

@@ -1,0 +1,39 @@
+---
+title: 面向极限抗拉强度的机器学习预测与解释
+summary: 围绕 UTS 建立兼顾数据质量、泛化验证与材料机理解释的机器学习研究框架。
+slug: uts-machine-learning-interpretation
+domain: scientific-computing
+status: active
+questions:
+  [
+    有限材料数据下如何获得可信的泛化评估,
+    组分温度与物理描述符如何共同表达材料状态,
+    模型解释如何服务于材料机理判断而非替代判断,
+  ]
+methods: [特征工程, 交叉验证, RFECV, SHAP 解释]
+tools: [Python, scikit-learn, XGBoost, SHAP]
+tags: [UTS, 机器学习, 特征工程, 可解释性]
+relatedProjects: [uts-machine-learning]
+relatedArticles: [knowledge-base-method]
+disclosure: 本页只描述研究目标、候选特征、建模方法与验证原则，不公开未发表数据集、模型排名、预测精度、最优组分或定量结论。
+featured: true
+order: 2
+draft: false
+updatedDate: 2026-08-30
+lastVerified: 2026-08-30
+---
+
+## 研究范围
+
+这一方向以极限抗拉强度（UTS）为核心指标，探索材料组分、温度与物理描述符之间可被验证的统计关系。预测精度只是评价的一部分，模型还需要帮助识别数据边界、特征作用和可能的材料机制。
+
+## 方法框架
+
+- 对数据来源、单位、缺失值和重复样本进行审计，避免把清洗误差带入模型比较。
+- 将温度、元素组分、晶格常数、单原子体积、价电子浓度和混合焓等信息组织为可追溯特征。
+- 在一致的数据划分与交叉验证规则下比较 GPR、XGBoost、SVR 和随机森林等模型。
+- 使用 RFECV 与 SHAP 检查特征稳定性和局部解释，并把统计解释放回材料背景中审视。
+
+## 公开边界
+
+这里不展示未公开训练数据、模型指标、最优参数或候选配方。任何后续公开的性能结论都应同时说明数据范围、验证策略和不确定性。

@@ -1,0 +1,96 @@
+---
+const title = "JunhaoChou Admin";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="same-origin" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+    <style>
+      :root {
+        font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+        color-scheme: light dark;
+        background: #f7f8fa;
+        color: #111827;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .admin-bootstrap {
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .admin-bootstrap div {
+        width: min(100%, 30rem);
+        border: 1px solid #dce1e8;
+        border-radius: 8px;
+        background: #fff;
+        padding: 1.5rem;
+      }
+
+      .admin-bootstrap h1 {
+        margin: 0;
+        font-size: 1.125rem;
+      }
+
+      .admin-bootstrap p {
+        margin: 0.75rem 0 0;
+        color: #5f6b7a;
+        line-height: 1.7;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          background: #0c1016;
+          color: #edf2f7;
+        }
+
+        .admin-bootstrap div {
+          border-color: #263140;
+          background: #121821;
+        }
+
+        .admin-bootstrap p {
+          color: #9ba8b8;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>JunhaoChou Admin 需要启用 JavaScript。</noscript>
+    <div class="admin-bootstrap" data-admin-status role="status" aria-live="polite">
+      <div>
+        <h1>正在加载内容管理后台</h1>
+        <p>后台资源来自当前网站构建，不再从浮动 CDN 加载。</p>
+      </div>
+    </div>
+    <script>
+      const status = document.querySelector<HTMLElement>("[data-admin-status]");
+      try {
+        const { default: CMS } = await import("decap-cms-app");
+        CMS.registerPreviewStyle("/admin/preview.css");
+        status?.remove();
+        CMS.init();
+      } catch (error) {
+        console.error("Decap CMS failed to initialize", error);
+        if (status) {
+          status.innerHTML = `
+            <div>
+              <h1>后台加载失败</h1>
+              <p>请检查网络与浏览器控制台，然后刷新页面。如果问题持续存在，请从 GitHub 直接编辑内容。</p>
+            </div>`;
+        }
+      }
+    </script>
+  </body>
+</html>

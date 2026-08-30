@@ -1,14 +1,27 @@
 ---
 import { render } from "astro:content";
-import { Calendar, Clock3, ShieldCheck, Tag } from "lucide-astro";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  Clock3,
+  GitBranch,
+  Layers3,
+  ShieldCheck,
+  Tag,
+} from "lucide-astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
 import ArticleCard from "../../components/ArticleCard.astro";
 import ArticleEnhancements from "../../components/ArticleEnhancements.astro";
-import Giscus from "../../components/Giscus.astro";
 import CoverImage from "../../components/CoverImage.astro";
+import Giscus from "../../components/Giscus.astro";
 import MobileToc from "../../components/MobileToc.astro";
-import { categories, site } from "../../data/site";
+import { categories, domains, site } from "../../data/site";
 import { bySeries, getPublishedArticles, readingMinutes } from "../../utils/articles";
+import { getPublishedProjects, getPublishedResearch } from "../../utils/content";
+import { relatedSlugs } from "../../utils/relations";
 
 export async function getStaticPaths() {
   const articles = await getPublishedArticles();
@@ -17,72 +30,173 @@ export async function getStaticPaths() {
 
 const { article } = Astro.props;
 const { Content, headings } = await render(article);
-const articles = await getPublishedArticles();
+const [articles, researchEntries, projectEntries] = await Promise.all([
+  getPublishedArticles(),
+  getPublishedResearch(),
+  getPublishedProjects(),
+]);
 const category = categories.find((item) => item.slug === article.data.category)!;
-const index = articles.findIndex((item) => item.id === article.id);
-const adjacent = { newer: articles[index - 1], older: articles[index + 1] };
+const domain = domains.find((item) =>
+  (item.categorySlugs as readonly string[]).includes(article.data.category),
+);
 const series = article.data.series ? bySeries(articles, article.data.series) : [];
-const related = articles
-  .filter((item) => article.data.related.includes(item.data.slug))
-  .slice(0, 3);
-const minutes = readingMinutes(article.body ?? "");
-const tocHeadings = headings.filter((heading) => heading.depth < 4);
-const articleUrl = new URL(`/articles/${article.data.slug}/`, site.url).toString();
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: article.data.title,
-  description: article.data.description,
-  datePublished: article.data.pubDate.toISOString(),
-  dateModified: (article.data.updatedDate ?? article.data.pubDate).toISOString(),
-  author: { "@type": "Person", name: article.data.author },
-  mainEntityOfPage: articleUrl,
+const navigationPool = series.length > 1 ? series : articles;
+const navigationIndex = navigationPool.findIndex((item) => item.id === article.id);
+const adjacent = {
+  previous: navigationPool[navigationIndex - 1],
+  next: navigationPool[navigationIndex + 1],
 };
+const outboundArticleSlugs = relatedSlugs(article.data.related, article.body ?? "", "articles");
+const related = articles.filter((item) => outboundArticleSlugs.has(item.data.slug)).slice(0, 4);
+const backlinks = [
+  ...articles
+    .filter((item) =>
+      relatedSlugs(item.data.related, item.body ?? "", "articles").has(article.data.slug),
+    )
+    .filter((item) => !outboundArticleSlugs.has(item.data.slug))
+    .map((item) => ({
+      href: `/articles/${item.data.slug}/`,
+      title: item.data.title,
+      type: "文章",
+    })),
+  ...researchEntries
+    .filter((item) =>
+      relatedSlugs(item.data.relatedArticles, item.body ?? "", "articles").has(article.data.slug),
+    )
+    .map((item) => ({
+      href: `/research/${item.data.slug}/`,
+      title: item.data.title,
+      type: "研究",
+    })),
+  ...projectEntries
+    .filter((item) =>
+      relatedSlugs(item.data.relatedArticles, item.body ?? "", "articles").has(article.data.slug),
+    )
+    .map((item) => ({
+      href: `/projects/${item.data.slug}/`,
+      title: item.data.title,
+      type: "项目",
+    })),
+];
+const minutes = readingMinutes(article.body ?? "");
+const tocHeadings = article.data.toc ? headings.filter((heading) => heading.depth < 4) : [];
+const articleUrl = new URL(`/articles/${article.data.slug}/`, site.url).toString();
+const canonicalUrl = article.data.canonical ?? articleUrl;
+const dateModified = article.data.updatedDate ?? article.data.pubDate;
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.data.title,
+    description: article.data.description,
+    image: new URL(article.data.cover.src, site.url).toString(),
+    datePublished: article.data.pubDate.toISOString(),
+    dateModified: dateModified.toISOString(),
+    inLanguage: "zh-CN",
+    keywords: article.data.tags.join(", "),
+    articleSection: category.name,
+    author: { "@type": "Person", name: article.data.author, url: site.url },
+    publisher: { "@type": "Person", name: site.name, url: site.url },
+    mainEntityOfPage: canonicalUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: site.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "文章",
+        item: new URL("/articles/", site.url).toString(),
+      },
+      { "@type": "ListItem", position: 3, name: article.data.title, item: articleUrl },
+    ],
+  },
+];
 ---
 
 <BaseLayout
   title={article.data.title}
   description={article.data.description}
-  canonical={article.data.canonical ?? articleUrl}
+  canonical={canonicalUrl}
   image={article.data.cover.src}
+  imageAlt={article.data.cover.alt}
+  ogType="article"
   jsonLd={jsonLd}
+  pagefind={{
+    type: "article",
+    domain: domain?.slug,
+    tags: article.data.tags,
+    series: article.data.series,
+  }}
 >
-  <div class="container py-8 lg:py-10">
-    <div class="grid gap-8 xl:grid-cols-[minmax(0,800px)_300px]">
-      <article class="min-w-0">
-        <nav class="text-xs text-slate-500" aria-label="面包屑">
-          <a class="hover:text-blue-600" href="/">首页</a> / <a
-            class="hover:text-blue-600"
-            href="/articles/">文章</a
-          > / <a class="hover:text-blue-600" href={`/categories/${category.slug}/`}
-            >{category.name}</a
+  <div class="container py-8 lg:py-12">
+    <ArticleLayout pagefindBody>
+      <div slot="context" class="space-y-6 text-sm">
+        <nav aria-label="文章上下文" class="context-nav">
+          <p class="context-label">内容路径</p>
+          <a href="/articles/">全部文章</a>
+          {domain && <a href={`/articles/?domain=${domain.slug}`}>{domain.name}</a>}
+          <a href={`/categories/${category.slug}/`}>{category.name}</a>
+        </nav>
+        {
+          article.data.series && (
+            <section>
+              <p class="context-label">所属系列</p>
+              <a
+                class="context-strong"
+                href={`/series/${encodeURIComponent(article.data.series)}/`}
+              >
+                {article.data.series}
+              </a>
+              <ol class="context-series mt-3">
+                {series.map((item, position) => (
+                  <li>
+                    <a
+                      class:list={[item.id === article.id && "is-current"]}
+                      href={`/articles/${item.data.slug}/`}
+                    >
+                      <span>{String(position + 1).padStart(2, "0")}</span>
+                      {item.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )
+        }
+      </div>
+
+      <header class="article-header">
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="/">首页</a><span aria-hidden="true">/</span><a href="/articles/">文章</a><span
+            aria-hidden="true">/</span
+          ><span>{category.name}</span>
+        </nav>
+        <div class="mt-6 flex flex-wrap items-center gap-2">
+          {domain && <span class="meta-chip">{domain.name}</span>}
+          <a class="meta-chip" href={`/categories/${category.slug}/`}>{category.name}</a>
+        </div>
+        <h1>{article.data.title}</h1>
+        <p class="article-deck">{article.data.description}</p>
+        <div class="article-meta" aria-label="文章元数据">
+          <span
+            ><Calendar aria-hidden="true" />发布于 {
+              article.data.pubDate.toLocaleDateString("zh-CN")
+            }</span
           >
-        </nav><header class="mt-5 border-b border-slate-200 pb-7 dark:border-slate-800">
-          <a
-            class="text-sm font-medium text-blue-600 dark:text-blue-400"
-            href={`/categories/${category.slug}/`}>{category.name}</a
-          ><h1
-            class="mt-3 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl dark:text-white"
+          <span><Clock3 aria-hidden="true" />预计 {minutes} 分钟</span>
+          <span
+            ><ShieldCheck aria-hidden="true" />最后验证 {
+              article.data.lastVerified?.toLocaleDateString("zh-CN") ?? "未标注"
+            }</span
           >
-            {article.data.title}
-          </h1><p class="mt-5 text-base leading-8 text-slate-600 dark:text-slate-300">
-            {article.data.description}
-          </p><div
-            class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-400"
-          >
-            <span class="inline-flex items-center gap-1.5"
-              ><Calendar class="h-4 w-4" />发布于 {
-                article.data.pubDate.toLocaleDateString("zh-CN")
-              }</span
-            ><span class="inline-flex items-center gap-1.5"
-              ><Clock3 class="h-4 w-4" />预计 {minutes} 分钟</span
-            ><span class="inline-flex items-center gap-1.5"
-              ><ShieldCheck class="h-4 w-4" />最后验证 {
-                article.data.lastVerified?.toLocaleDateString("zh-CN") ?? "未标注"
-              }</span
-            >
-          </div>
-        </header><div class="cover-frame mt-7 h-52 sm:h-72">
+        </div>
+      </header>
+
+      <figure class="article-cover">
+        <div class="cover-frame aspect-[16/9]">
           <CoverImage
             src={article.data.cover.src}
             alt={article.data.cover.alt}
@@ -90,171 +204,151 @@ const jsonLd = {
             loading="eager"
             focal={article.data.cover.focal}
           />
-          <div
-            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent p-6"
-          >
-            <p class="max-w-md text-sm leading-6 text-blue-100">
-              {article.data.environment.join(" · ")}
-            </p>
-          </div>
         </div>
-      </article><MobileToc headings={tocHeadings} /><div
-        class="prose-article mt-8"
-        data-pagefind-body
-      >
-        <Content />
-      </div>{
-        article.data.disclaimer && (
-          <section class="mt-8 border-l-4 border-amber-500 bg-amber-50 p-5 text-sm leading-7 text-slate-700 dark:bg-amber-950/30 dark:text-slate-200">
-            <strong>免责声明：</strong>
-            {article.data.disclaimer}
-          </section>
-        )
-      }<section
-        class="mt-10 grid gap-4 border-t border-slate-200 pt-8 sm:grid-cols-2 dark:border-slate-800"
-      >
         {
-          adjacent.newer ? (
-            <a
-              class="surface p-4 hover:border-blue-400"
-              href={`/articles/${adjacent.newer.data.slug}/`}
-            >
-              <>
-                <span class="subtle">上一篇</span>
-                <span class="mt-2 block font-medium text-slate-900 dark:text-white">
-                  {adjacent.newer.data.title}
-                </span>
-              </>
-            </a>
-          ) : (
-            <div />
-          )
-        }{
-          adjacent.older && (
-            <a
-              class="surface p-4 text-right hover:border-blue-400"
-              href={`/articles/${adjacent.older.data.slug}/`}
-            >
-              <>
-                <span class="subtle">下一篇</span>
-                <span class="mt-2 block font-medium text-slate-900 dark:text-white">
-                  {adjacent.older.data.title}
-                </span>
-              </>
-            </a>
+          article.data.environment.length > 0 && (
+            <figcaption>{article.data.environment.join(" · ")}</figcaption>
           )
         }
-      </section>{
-        related.length > 0 && (
-          <section class="mt-10">
-            <>
-              <h2 class="section-title">相关文章</h2>
-              <div class="mt-4 grid gap-4 md:grid-cols-2">
-                {related.map((item) => (
-                  <ArticleCard article={item} />
-                ))}
-              </div>
-            </>
+      </figure>
+
+      <MobileToc headings={tocHeadings} />
+
+      <div class="prose-article article-body">
+        <Content />
+      </div>
+
+      {
+        article.data.disclaimer && (
+          <section class="article-disclosure" aria-labelledby="article-disclosure-heading">
+            <h2 id="article-disclosure-heading">使用边界</h2>
+            <p>{article.data.disclaimer}</p>
           </section>
         )
       }
-    </div><aside class="hidden xl:block">
-      <div class="sticky top-24 space-y-5">
-        <section class="surface p-4">
-          <p class="text-sm font-semibold text-slate-900 dark:text-white">本页目录</p><nav
-            class="mt-3"
-            aria-label="文章目录"
-          >
+
+      <nav class="article-pager" aria-label="相邻文章">
+        {
+          adjacent.previous ? (
+            <a href={`/articles/${adjacent.previous.data.slug}/`}>
+              <span>
+                <ArrowLeft aria-hidden="true" />
+                上一篇
+              </span>
+              <strong>{adjacent.previous.data.title}</strong>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        {
+          adjacent.next && (
+            <a class="text-right" href={`/articles/${adjacent.next.data.slug}/`}>
+              <span>
+                下一篇
+                <ArrowRight aria-hidden="true" />
+              </span>
+              <strong>{adjacent.next.data.title}</strong>
+            </a>
+          )
+        }
+      </nav>
+
+      {
+        related.length > 0 && (
+          <section class="article-relations" aria-labelledby="related-heading">
+            <div class="relation-heading">
+              <div>
+                <BookOpen aria-hidden="true" />
+                <h2 id="related-heading">相关文章</h2>
+              </div>
+              <p>作者明确关联的延伸阅读</p>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              {related.map((item) => (
+                <ArticleCard article={item} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        backlinks.length > 0 && (
+          <section class="article-backlinks" aria-labelledby="backlinks-heading">
+            <div class="relation-heading">
+              <div>
+                <GitBranch aria-hidden="true" />
+                <h2 id="backlinks-heading">被引用于</h2>
+              </div>
+              <p>在本站知识关系中引用这篇文章的内容</p>
+            </div>
+            <ul>
+              {backlinks.map((item) => (
+                <li>
+                  <a href={item.href}>
+                    <span>{item.title}</span>
+                    <small>{item.type}</small>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <Giscus />
+
+      <div slot="aside" class="space-y-5">
+        {
+          tocHeadings.length > 0 && (
+            <section class="aside-section">
+              <p class="aside-title">本页目录</p>
+              <nav class="mt-3" aria-label="文章目录">
+                {tocHeadings.map((heading) => (
+                  <a
+                    class:list={["toc-link", heading.depth === 3 ? "ml-3" : ""]}
+                    href={`#${heading.slug}`}
+                  >
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </section>
+          )
+        }
+        <section class="aside-section">
+          <p class="aside-title flex items-center gap-2"><Layers3 aria-hidden="true" />文章信息</p>
+          <dl class="article-facts">
+            <div><dt>难度</dt><dd>{article.data.difficulty}</dd></div>
+            <div><dt>前置条件</dt><dd>{article.data.prerequisites.join("、") || "无"}</dd></div>
+            <div><dt>适用环境</dt><dd>{article.data.environment.join("、") || "未标注"}</dd></div>
             {
-              tocHeadings.map((heading) => (
-                <a
-                  class:list={["toc-link", heading.depth === 3 ? "ml-3" : ""]}
-                  href={`#${heading.slug}`}
-                >
-                  {heading.text}
-                </a>
-              ))
-            }
-          </nav>
-        </section><section class="surface p-4">
-          <p class="text-sm font-semibold text-slate-900 dark:text-white">文章信息</p><dl
-            class="mt-3 space-y-3 text-sm"
-          >
-            <div>
-              <dt class="text-slate-400">难度</dt><dd
-                class="mt-1 text-slate-700 dark:text-slate-200"
-              >
-                {article.data.difficulty}
-              </dd>
-            </div><div>
-              <dt class="text-slate-400">前置条件</dt><dd
-                class="mt-1 text-slate-700 dark:text-slate-200"
-              >
-                {article.data.prerequisites.join("、") || "无"}
-              </dd>
-            </div><div>
-              <dt class="text-slate-400">环境</dt><dd
-                class="mt-1 text-slate-700 dark:text-slate-200"
-              >
-                {article.data.environment.join("、") || "未标注"}
-              </dd>
-            </div>{
               article.data.series && (
                 <div>
-                  <>
-                    <dt class="text-slate-400">系列进度</dt>
-                    <dd class="mt-1 text-slate-700 dark:text-slate-200">
-                      {article.data.series} ·{" "}
-                      {series.findIndex((item) => item.id === article.id) + 1}/{series.length}
-                    </dd>
-                  </>
+                  <dt>系列进度</dt>
+                  <dd>
+                    {series.findIndex((item) => item.id === article.id) + 1}/{series.length}
+                  </dd>
                 </div>
               )
             }
           </dl>
-        </section><section class="surface p-4">
-          <p class="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-            <Tag class="h-4 w-4" />标签
-          </p><div class="mt-3 flex flex-wrap gap-2">
+        </section>
+        <section class="aside-section">
+          <p class="aside-title flex items-center gap-2"><Tag aria-hidden="true" />标签</p>
+          <div class="mt-3 flex flex-wrap gap-2">
             {
               article.data.tags.map((tag) => (
-                <a
-                  class="border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-                  href={`/tags/${tag}/`}
-                >
+                <a class="tag-link" href={`/tags/${encodeURIComponent(tag)}/`}>
                   {tag}
                 </a>
               ))
             }
           </div>
-        </section>{
-          article.data.series && (
-            <section class="surface p-4">
-              <>
-                <p class="text-sm font-semibold text-slate-900 dark:text-white">系列导航</p>
-                <ol class="mt-3 space-y-2">
-                  {series.map((item, position) => (
-                    <li>
-                      <a
-                        class:list={[
-                          "text-sm hover:text-blue-600",
-                          item.id === article.id
-                            ? "font-semibold text-blue-600"
-                            : "text-slate-600 dark:text-slate-300",
-                        ]}
-                        href={`/articles/${item.data.slug}/`}
-                      >
-                        {position + 1}. {item.data.title}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </>
-            </section>
-          )
-        }
+        </section>
       </div>
-    </aside>
+    </ArticleLayout>
   </div>
-</BaseLayout><ArticleEnhancements />
-<div class="container"><div class="xl:max-w-[800px]"><Giscus /></div></div>
+  <ArticleEnhancements />
+</BaseLayout>

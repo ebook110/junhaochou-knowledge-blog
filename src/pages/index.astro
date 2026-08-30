@@ -1,215 +1,324 @@
 ---
-import { ArrowRight, BookOpen, Boxes, Search } from "lucide-astro";
+import { ArrowRight } from "lucide-astro";
+import ArticleRow from "../components/ArticleRow.astro";
+import DomainRow from "../components/DomainRow.astro";
+import MethodMatrix from "../components/MethodMatrix.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import TensileSpecimen from "../components/TensileSpecimen.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ArticleCard from "../components/ArticleCard.astro";
-import CoverImage from "../components/CoverImage.astro";
-import Sidebar from "../components/Sidebar.astro";
-import { categories, site, tools } from "../data/site";
+import { domains, getCategory, getDomain, site } from "../data/site";
+import { getPublishedProjects } from "../utils/content";
 import { getPublishedArticles } from "../utils/articles";
 
-const articles = await getPublishedArticles();
-const featured = articles.filter((item) => item.data.featured).slice(0, 3);
-const latest = articles.slice(0, 4);
-const series = [
-  ...new Set(articles.map((article) => article.data.series).filter(Boolean)),
-] as string[];
+const [articles, projects] = await Promise.all([getPublishedArticles(), getPublishedProjects()]);
+const featuredProjects = projects.filter((project) => project.data.featured).slice(0, 3);
+const latestArticles = articles.slice(0, 4);
+
+const matrixColumns: [string, string, string] = ["建立模型", "控制变量", "解释响应"];
+const matrixRows = [
+  {
+    subject: "材料体系",
+    cells: ["VNbTaTiZr", "温度 · 组分 · 应变率", "结构演化"] as [string, string, string],
+  },
+  {
+    subject: "分子动力学",
+    cells: ["势函数验证", "LAMMPS 拉伸", "位错 · 孪晶"] as [string, string, string],
+  },
+  {
+    subject: "机器学习",
+    cells: ["特征工程", "GPR · XGBoost · SVR", "RFECV · SHAP"] as [string, string, string],
+  },
+];
 ---
 
 <BaseLayout
-  image="/images/covers/hero-engineering.webp"
-  jsonLd={{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: site.name,
-    url: site.url,
-    description: site.description,
-  }}
+  description="JunhaoChou 的材料研究、分子动力学、机器学习与工程系统知识库。"
+  jsonLd={[
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: site.name,
+      url: site.url,
+      description: site.description,
+      inLanguage: "zh-CN",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: site.name,
+      url: site.url,
+      sameAs: [site.github],
+      knowsAbout: ["难熔高熵合金", "分子动力学", "机器学习", "工程系统"],
+    },
+  ]}
 >
-  <section class="home-hero overflow-hidden border-b border-slate-800 text-white">
-    <div
-      class="container relative grid min-h-[390px] items-center gap-8 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-16"
-    >
-      <div class="relative z-10 max-w-2xl">
-        <p class="text-sm font-semibold text-sky-200">可复现的技术记录</p>
-        <h1 class="mt-4 text-4xl font-bold leading-tight sm:text-5xl">{site.tagline}</h1>
-        <p class="mt-5 max-w-xl text-base leading-8 text-slate-200">
-          材料计算、工程软件、Linux/VPS
-          与工具实践的中文知识库。每篇文章保留适用环境、验证日期和可追溯上下文。
+  <section class="home-intro" aria-labelledby="home-title">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <h1 id="home-title">
+          <span>材料研究、</span>
+          <span>计算方法与工程实践</span>
+        </h1>
+        <p>
+          围绕 VNbTaTiZr 难熔高熵合金，连接分子动力学、力学响应解释、机器学习与可复现的工程系统。
         </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <button
-            data-search-open
-            class="inline-flex items-center gap-2 rounded-md bg-blue-500 px-5 py-3 text-sm font-semibold hover:bg-blue-400"
-          >
-            <Search class="h-4 w-4" /> 搜索知识库
-          </button>
-          <a
-            href="/articles/"
-            class="inline-flex items-center gap-2 rounded-md border border-slate-400/70 px-5 py-3 text-sm font-semibold hover:border-white hover:bg-white/10"
-          >
-            <BookOpen class="h-4 w-4" /> 浏览文章
+        <div class="hero-actions">
+          <a class="primary-action" href="/research/">
+            进入研究
+            <ArrowRight class="h-4 w-4" aria-hidden="true" />
           </a>
+          <a class="secondary-action" href="/projects/">查看项目</a>
         </div>
       </div>
-      <div class="relative h-56 overflow-hidden rounded-md border border-white/20 sm:h-72">
-        <CoverImage
-          src="/images/covers/hero-engineering.webp"
-          alt="蓝色工程文档抽象图，包含网格、节点与结构化数据元素"
-          class="h-full w-full"
-          loading="eager"
-        />
-        <div
-          class="absolute inset-x-0 bottom-0 border-t border-white/15 bg-slate-950/35 px-5 py-4 backdrop-blur-sm"
-        >
-          <p class="text-sm font-semibold">从实验记录到长期系统</p>
-          <p class="mt-1 text-sm text-slate-200">清晰来源、明确条件、持续复核。</p>
-        </div>
-      </div>
+
+      <MethodMatrix columns={matrixColumns} rows={matrixRows} />
     </div>
   </section>
 
-  <div class="container py-8 lg:py-10">
-    <div class="grid gap-7 xl:grid-cols-[220px_minmax(0,1fr)_220px]">
-      <div class="hidden xl:block"><Sidebar articles={articles} side="left" /></div>
-      <div class="min-w-0 space-y-12">
-        <section aria-labelledby="category-heading">
-          <div
-            class="flex items-end justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-800"
-          >
-            <div>
-              <p class="subtle">按主题快速定位</p>
-              <h2 id="category-heading" class="section-title mt-1">知识分类</h2>
-            </div>
-            <a
-              class="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-400"
-              href="/categories/"
-            >
-              查看全部 <ArrowRight class="h-4 w-4" />
-            </a>
-          </div>
-          <div class="category-index mt-5 grid gap-3 sm:grid-cols-2">
-            {
-              categories.map((category) => (
-                <a
-                  class="surface group p-4 hover:border-blue-400"
-                  href={`/categories/${category.slug}/`}
-                >
-                  <div class="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 class="font-semibold text-slate-950 group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
-                        {category.name}
-                      </h3>
-                      <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                        {category.description}
-                      </p>
-                    </div>
-                    <span class="text-sm tabular-nums text-slate-400">
-                      {articles.filter((article) => article.data.category === category.slug).length}
-                    </span>
-                  </div>
-                </a>
-              ))
-            }
-          </div>
-        </section>
+  <TensileSpecimen />
 
-        <section aria-labelledby="featured-heading">
-          <div
-            class="flex items-end justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-800"
-          >
-            <div>
-              <p class="subtle">重点整理与复核</p>
-              <h2 id="featured-heading" class="section-title mt-1">精选文章</h2>
-            </div>
-            <a
-              class="text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-400"
-              href="/articles/">文章归档</a
-            >
-          </div>
-          <div class="mt-5 grid gap-4 md:grid-cols-3">
-            {featured.map((article) => <ArticleCard article={article} />)}
-          </div>
-        </section>
+  <div class="container home-sections">
+    <section class="home-section" aria-labelledby="featured-projects-title">
+      <SectionHeader
+        id="featured-projects-title"
+        title="精选项目"
+        description="以可追溯方法、工具链和公开边界记录研究与工程实践。"
+        href="/projects/"
+        linkLabel="全部项目"
+      />
 
-        <section aria-labelledby="latest-heading">
-          <div class="border-b border-slate-200 pb-4 dark:border-slate-800">
-            <p class="subtle">最近写入与验证</p>
-            <h2 id="latest-heading" class="section-title mt-1">最新更新</h2>
-          </div>
-          <div class="mt-5 space-y-3">
-            {latest.map((article) => <ArticleCard article={article} compact />)}
-          </div>
-        </section>
-
-        <section
-          class="grid gap-8 border-y border-slate-200 py-8 md:grid-cols-2 dark:border-slate-800"
-        >
-          <div>
-            <div class="flex items-center gap-3">
-              <Boxes class="h-5 w-5 text-blue-700" />
-              <div>
-                <p class="subtle">按学习顺序组织</p>
-                <h2 class="section-title mt-1">系列教程</h2>
-              </div>
+      <div class="project-grid">
+        {
+          featuredProjects.map((project, index) => (
+            <div class={`project-slot project-slot-${index + 1}`}>
+              <ProjectCard
+                project={project.data}
+                domainLabel={getDomain(project.data.domain).name}
+              />
             </div>
-            <div class="mt-5 space-y-2">
-              {
-                series.map((name) => (
-                  <a
-                    class="surface flex items-center justify-between gap-4 px-4 py-3 hover:border-blue-400"
-                    href={`/series/${encodeURIComponent(name)}/`}
-                  >
-                    <span class="font-semibold text-slate-900 dark:text-white">{name}</span>
-                    <span class="text-sm tabular-nums text-slate-400">
-                      {articles.filter((article) => article.data.series === name).length} 篇
-                    </span>
-                  </a>
-                ))
-              }
-            </div>
-          </div>
-          <div>
-            <p class="subtle">来源优先，保留版本信息</p>
-            <h2 class="section-title mt-1">常用工具</h2>
-            <div class="mt-5 grid gap-2">
-              {
-                tools.map((tool) => (
-                  <a
-                    class="surface px-4 py-3 hover:border-blue-400"
-                    href={tool.href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <p class="font-semibold text-slate-900 dark:text-white">{tool.name}</p>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      {tool.description}
-                    </p>
-                  </a>
-                ))
-              }
-            </div>
-          </div>
-        </section>
-
-        <section class="grid gap-3 text-center sm:grid-cols-3" aria-label="站点统计">
-          <div class="surface py-5">
-            <p class="text-3xl font-bold tabular-nums text-blue-700 dark:text-blue-400">
-              {articles.length}
-            </p><p class="subtle mt-1">已发布文章</p>
-          </div>
-          <div class="surface py-5">
-            <p class="text-3xl font-bold tabular-nums text-blue-700 dark:text-blue-400">
-              {categories.length}
-            </p><p class="subtle mt-1">一级分类</p>
-          </div>
-          <div class="surface py-5">
-            <p class="text-3xl font-bold tabular-nums text-blue-700 dark:text-blue-400">
-              {series.length}
-            </p><p class="subtle mt-1">系列教程</p>
-          </div>
-        </section>
+          ))
+        }
       </div>
-      <div class="hidden xl:block"><Sidebar articles={articles} side="right" /></div>
-    </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="knowledge-domains-title">
+      <SectionHeader
+        id="knowledge-domains-title"
+        title="知识体系"
+        description="四条路径组织现有分类，让研究方法、工程记录与风险意识保持可定位。"
+      />
+
+      <ul class="domain-ledger">
+        {
+          domains.map((domain) => (
+            <DomainRow
+              domain={domain}
+              categories={domain.categorySlugs.map((slug) => getCategory(slug))}
+            />
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="home-section" aria-labelledby="latest-articles-title">
+      <SectionHeader
+        id="latest-articles-title"
+        title="最新文章"
+        description="保留适用条件、来源和复核上下文的近期技术记录。"
+        href="/articles/"
+        linkLabel="文章归档"
+      />
+
+      <div class="article-ledger">
+        {
+          latestArticles.map((article) => (
+            <ArticleRow article={article.data} category={getCategory(article.data.category)} />
+          ))
+        }
+      </div>
+    </section>
   </div>
 </BaseLayout>
+
+<style>
+  .home-intro {
+    background: var(--site-canvas);
+  }
+
+  .hero-grid {
+    display: grid;
+    min-height: 490px;
+    align-items: center;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    padding-block: clamp(3.75rem, 8vw, 6.5rem);
+  }
+
+  .hero-copy {
+    min-width: 0;
+  }
+
+  h1 {
+    max-width: 10em;
+    color: var(--site-ink);
+    font-size: clamp(2.65rem, 5vw, 4.15rem);
+    font-weight: 730;
+    letter-spacing: -0.04em;
+    line-height: 1.06;
+  }
+
+  h1 span {
+    display: block;
+  }
+
+  .hero-copy > p {
+    max-width: 43rem;
+    margin-top: clamp(1.4rem, 3vw, 2rem);
+    color: var(--site-muted);
+    font-size: clamp(1rem, 1.5vw, 1.08rem);
+    line-height: 1.85;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: clamp(1.8rem, 4vw, 2.5rem);
+  }
+
+  .primary-action,
+  .secondary-action {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--site-radius);
+    padding-inline: 1.15rem;
+    font-size: 0.875rem;
+    font-weight: 680;
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .primary-action {
+    gap: 0.5rem;
+    border-color: #1556c0;
+    background: #1556c0;
+    color: #ffffff;
+  }
+
+  .primary-action:hover {
+    border-color: #0e459f;
+    background: #0e459f;
+  }
+
+  .secondary-action {
+    border-color: var(--site-line-strong);
+    background: var(--site-surface);
+    color: var(--site-ink-soft);
+  }
+
+  .secondary-action:hover {
+    border-color: var(--site-cobalt);
+    color: var(--site-cobalt);
+  }
+
+  .home-sections {
+    padding-top: clamp(4.75rem, 9vw, 7.5rem);
+  }
+
+  .home-section + .home-section {
+    margin-top: clamp(5.5rem, 10vw, 8.5rem);
+  }
+
+  .project-grid {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .project-slot {
+    min-width: 0;
+  }
+
+  .domain-ledger,
+  .article-ledger {
+    margin-top: 1.25rem;
+  }
+
+  .domain-ledger {
+    list-style: none;
+  }
+
+  @media (min-width: 768px) {
+    .project-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .project-slot-3 {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.08fr) minmax(410px, 0.92fr);
+    }
+
+    .hero-grid > :global(.method-matrix) {
+      border-left: 1px solid var(--site-line);
+      padding-left: clamp(2rem, 4vw, 3.5rem);
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .project-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .project-slot-1 {
+      grid-column: span 5;
+    }
+
+    .project-slot-2 {
+      grid-column: span 4;
+    }
+
+    .project-slot-3 {
+      grid-column: span 3;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero-grid {
+      min-height: 0;
+      padding-block: 3.25rem 2.75rem;
+    }
+
+    h1 {
+      font-size: clamp(2.45rem, 12vw, 3.15rem);
+      line-height: 1.1;
+    }
+
+    .hero-copy > p {
+      line-height: 1.75;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .hero-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .primary-action,
+    .secondary-action {
+      width: 100%;
+      padding-inline: 0.75rem;
+    }
+  }
+</style>

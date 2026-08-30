@@ -1,0 +1,187 @@
+---
+import { ArrowUpRight } from "lucide-astro";
+
+interface MatrixRow {
+  subject: string;
+  cells: [string, string, string];
+}
+
+interface Props {
+  columns: [string, string, string];
+  rows: MatrixRow[];
+}
+
+const { columns, rows } = Astro.props;
+---
+
+<section class="method-matrix" aria-labelledby="method-matrix-title">
+  <header>
+    <h2 id="method-matrix-title">研究方法矩阵</h2>
+    <a href="/research/">
+      <span>完整研究路径</span>
+      <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+    </a>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">研究对象</th>
+        {columns.map((column) => <th scope="col">{column}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <th scope="row">{row.subject}</th>
+            {row.cells.map((cell, index) => (
+              <td data-label={columns[index]}>{cell}</td>
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</section>
+
+<style>
+  .method-matrix {
+    min-width: 0;
+  }
+
+  header {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--site-line-strong);
+    border-bottom: 1px solid var(--site-line);
+  }
+
+  h2 {
+    color: var(--site-ink);
+    font-size: 0.92rem;
+    font-weight: 680;
+    letter-spacing: -0.01em;
+  }
+
+  header a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--site-cobalt);
+    font-size: 0.78rem;
+    font-weight: 640;
+    text-decoration: none;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    border-right: 1px solid var(--site-line);
+    border-bottom: 1px solid var(--site-line);
+    padding: 0.85rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th:last-child,
+  td:last-child {
+    border-right: 0;
+  }
+
+  thead th {
+    color: var(--site-faint);
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+  }
+
+  tbody th {
+    width: 23%;
+    color: var(--site-ink-soft);
+    font-size: 0.76rem;
+    font-weight: 650;
+    line-height: 1.55;
+  }
+
+  td {
+    color: var(--site-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 639px) {
+    header {
+      min-height: 50px;
+    }
+
+    header a span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    thead {
+      display: none;
+    }
+
+    table,
+    tbody,
+    tr,
+    th,
+    td {
+      display: block;
+      width: 100%;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--site-line);
+      padding-block: 0.8rem;
+    }
+
+    tbody tr:last-child {
+      border-bottom: 0;
+    }
+
+    tbody th,
+    td {
+      border: 0;
+      padding: 0.25rem 0;
+    }
+
+    tbody th {
+      margin-bottom: 0.25rem;
+      color: var(--site-ink);
+      font-size: 0.82rem;
+    }
+
+    td {
+      display: grid;
+      grid-template-columns: 5.2rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+
+    td::before {
+      color: var(--site-faint);
+      content: attr(data-label);
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 620;
+      letter-spacing: 0.04em;
+    }
+  }
+</style>

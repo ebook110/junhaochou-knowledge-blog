@@ -1,0 +1,109 @@
+<div class="specimen-band" aria-hidden="true">
+  <div class="container specimen-inner">
+    <svg viewBox="0 0 1200 104" focusable="false">
+      <line class="centerline" x1="14" y1="52" x2="1186" y2="52"></line>
+      <path
+        class="specimen-profile"
+        pathLength="1"
+        d="M18 42H166C190 42 202 30 226 30H974C998 30 1010 42 1034 42H1182V62H1034C1010 62 998 74 974 74H226C202 74 190 62 166 62H18Z"
+      ></path>
+      <line class="measure" x1="226" y1="17" x2="974" y2="17"></line>
+      <line class="measure" x1="226" y1="12" x2="226" y2="24"></line>
+      <line class="measure" x1="974" y1="12" x2="974" y2="24"></line>
+      <line class="measure" x1="1000" y1="30" x2="1000" y2="74"></line>
+      <line class="measure" x1="994" y1="30" x2="1006" y2="30"></line>
+      <line class="measure" x1="994" y1="74" x2="1006" y2="74"></line>
+      <text x="600" y="13" text-anchor="middle">L₀</text>
+      <text x="1015" y="55">d₀</text>
+      <text class="specimen-label" x="18" y="94">TENSILE SPECIMEN / METHOD CONTINUUM</text>
+      <text class="specimen-label" x="1182" y="94" text-anchor="end">VNbTaTiZr</text>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .specimen-band {
+    overflow: hidden;
+    border-block: 1px solid var(--site-line);
+    color: var(--site-line-strong);
+  }
+
+  .specimen-inner {
+    min-height: 104px;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 104px;
+  }
+
+  line,
+  path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .centerline {
+    stroke: var(--site-line);
+    stroke-dasharray: 4 5;
+  }
+
+  .specimen-profile {
+    fill: none;
+    stroke: var(--site-cobalt);
+    stroke-width: 1.25;
+  }
+
+  .measure {
+    stroke: var(--site-line-strong);
+    stroke-width: 1;
+  }
+
+  text {
+    fill: var(--site-faint);
+    font-family: var(--font-mono);
+    font-size: 9px;
+  }
+
+  .specimen-label {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .specimen-profile {
+      animation: specimen-trace 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      stroke-dasharray: 1;
+    }
+  }
+
+  @keyframes specimen-trace {
+    from {
+      opacity: 0.72;
+      stroke-dashoffset: 0.12;
+    }
+
+    to {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .specimen-inner {
+      min-height: 72px;
+      padding-inline: 0;
+    }
+
+    svg {
+      min-width: 720px;
+      height: 72px;
+      translate: -28%;
+    }
+
+    .specimen-label {
+      display: none;
+    }
+  }
+</style>

@@ -8,23 +8,88 @@ const { chart } = Astro.props;
 <div
   class="my-7 overflow-auto border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
   data-mermaid-chart={chart}
+  role="img"
+  aria-label="技术流程图"
 >
+  <p class="text-sm text-slate-500 dark:text-slate-400">正在加载图表…</p>
 </div>
 <script>
-  import mermaid from "mermaid";
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
-    securityLevel: "strict",
-  });
-  document.querySelectorAll<HTMLElement>("[data-mermaid-chart]").forEach(async (element, index) => {
-    const source = element.dataset.mermaidChart;
-    if (!source) return;
-    try {
-      const result = await mermaid.render(`mermaid-${index}`, source);
-      element.innerHTML = result.svg;
-    } catch {
-      element.textContent = "图表渲染失败，请检查 Mermaid 语法。";
-    }
-  });
+  const diagrams = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-mermaid-chart]:not([data-mermaid-ready])"),
+  );
+
+  if (diagrams.length > 0) {
+    diagrams.forEach((diagram) => (diagram.dataset.mermaidReady = "true"));
+    const instanceId =
+      typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID().replaceAll("-", "")
+        : `${Date.now()}${Math.random().toString(16).slice(2)}`;
+    let disposed = false;
+    let generation = 0;
+    let queuedRender = Promise.resolve();
+    let currentTheme: "dark" | "default" = document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "default";
+
+    const render = async (theme: "dark" | "default", requestedGeneration: number) => {
+      let mermaid: (typeof import("mermaid"))["default"];
+      try {
+        ({ default: mermaid } = await import("mermaid"));
+      } catch {
+        if (!disposed && requestedGeneration === generation) {
+          diagrams.forEach((element) => {
+            element.textContent = "图表模块加载失败，请刷新页面后重试。";
+          });
+        }
+        return;
+      }
+      if (disposed || requestedGeneration !== generation) return;
+      mermaid.initialize({
+        startOnLoad: false,
+        theme,
+        securityLevel: "strict",
+      });
+
+      for (const [index, element] of diagrams.entries()) {
+        const source = element.dataset.mermaidChart;
+        if (!source || disposed || requestedGeneration !== generation) return;
+        try {
+          const result = await mermaid.render(
+            `mermaid-${instanceId}-${requestedGeneration}-${index}`,
+            source,
+          );
+          if (disposed || requestedGeneration !== generation) return;
+          element.innerHTML = result.svg;
+          result.bindFunctions?.(element);
+        } catch {
+          if (disposed || requestedGeneration !== generation) return;
+          element.textContent = "图表渲染失败，请检查 Mermaid 语法。";
+        }
+      }
+    };
+
+    const scheduleRender = (theme: "dark" | "default") => {
+      const requestedGeneration = ++generation;
+      queuedRender = queuedRender.then(() => render(theme, requestedGeneration));
+    };
+
+    scheduleRender(currentTheme);
+    const observer = new MutationObserver(() => {
+      const nextTheme = document.documentElement.classList.contains("dark") ? "dark" : "default";
+      if (nextTheme === currentTheme) return;
+      currentTheme = nextTheme;
+      scheduleRender(currentTheme);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    const cleanup = () => {
+      disposed = true;
+      generation += 1;
+      observer.disconnect();
+      window.removeEventListener("pagehide", cleanup);
+      document.removeEventListener("astro:before-swap", cleanup);
+    };
+    window.addEventListener("pagehide", cleanup, { once: true });
+    document.addEventListener("astro:before-swap", cleanup, { once: true });
+  }
 </script>

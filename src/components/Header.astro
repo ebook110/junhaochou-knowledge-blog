@@ -1,65 +1,315 @@
 ---
-import { Menu, Search } from "lucide-astro";
+import { Menu, Search, X } from "lucide-astro";
 import { navigation, site } from "../data/site";
 import ThemeToggle from "./ThemeToggle.astro";
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === "/" ? currentPath === "/" : currentPath.startsWith(href);
 ---
 
-<header
-  class="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
->
-  <div class="container flex h-16 items-center justify-between gap-4">
-    <a href="/" class="flex items-center gap-2 font-semibold text-slate-950 dark:text-white"
-      ><span class="grid h-8 w-8 place-items-center bg-blue-600 text-sm text-white">J</span>{
-        site.name
-      }</a
-    >
-    <nav class="hidden items-center gap-6 md:flex" aria-label="主导航">
+<header class="site-header" data-site-header>
+  <div class="container header-grid">
+    <a class="wordmark" href="/" aria-label={`${site.name} 首页`}>
+      <span class="wordmark-name">{site.name}</span>
+      <span class="wordmark-index" aria-hidden="true">Knowledge Index</span>
+    </a>
+
+    <nav class="desktop-navigation" aria-label="主导航">
       {
         navigation.map((item) => (
           <a
-            class="text-sm text-slate-600 hover:text-blue-600 dark:text-slate-300"
+            class:list={["navigation-link", { "is-active": isActive(item.href) }]}
             href={item.href}
+            aria-current={isActive(item.href) ? "page" : undefined}
           >
             {item.label}
           </a>
         ))
       }
     </nav>
-    <div class="flex items-center gap-2">
+
+    <div class="header-actions">
       <button
+        type="button"
         data-search-open
-        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-        aria-label="搜索文章"><Search class="h-4 w-4" /></button
+        class="search-trigger"
+        aria-label="搜索站点内容"
+        aria-keyshortcuts="Control+K Meta+K"
       >
+        <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span class="search-label">搜索</span>
+        <kbd aria-hidden="true">⌘ K</kbd>
+      </button>
       <ThemeToggle />
       <button
+        type="button"
         id="mobile-menu-button"
-        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 md:hidden dark:border-slate-700 dark:text-slate-300"
+        class="mobile-menu-button"
         aria-controls="mobile-menu"
         aria-expanded="false"
-        aria-label="打开导航"><Menu class="h-4 w-4" /></button
+        aria-label="打开导航"
       >
+        <Menu class="menu-icon h-5 w-5" aria-hidden="true" />
+        <X class="close-icon hidden h-5 w-5" aria-hidden="true" />
+      </button>
     </div>
   </div>
-  <nav
-    id="mobile-menu"
-    class="container hidden border-t border-slate-200 py-3 md:hidden dark:border-slate-800"
-    aria-label="移动导航"
-  >
+
+  <nav id="mobile-menu" class="mobile-navigation container" aria-label="移动导航" hidden>
     {
       navigation.map((item) => (
-        <a class="block px-2 py-2 text-sm text-slate-700 dark:text-slate-200" href={item.href}>
-          {item.label}
+        <a
+          class:list={["mobile-navigation-link", { "is-active": isActive(item.href) }]}
+          href={item.href}
+          aria-current={isActive(item.href) ? "page" : undefined}
+        >
+          <span>{item.label}</span>
+          <span class="mobile-link-marker" aria-hidden="true" />
         </a>
       ))
     }
   </nav>
 </header>
+
 <script>
   const button = document.querySelector<HTMLButtonElement>("#mobile-menu-button");
   const menu = document.querySelector<HTMLElement>("#mobile-menu");
-  button?.addEventListener("click", () => {
-    const open = menu?.classList.toggle("hidden") === false;
+  const menuIcon = button?.querySelector<HTMLElement>(".menu-icon");
+  const closeIcon = button?.querySelector<HTMLElement>(".close-icon");
+
+  const setMenuState = (open: boolean) => {
+    if (!button || !menu) return;
+    menu.hidden = !open;
     button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
+    menuIcon?.classList.toggle("hidden", open);
+    closeIcon?.classList.toggle("hidden", !open);
+  };
+
+  button?.addEventListener("click", () => {
+    setMenuState(button.getAttribute("aria-expanded") !== "true");
+  });
+
+  menu
+    ?.querySelectorAll("a")
+    .forEach((link) => link.addEventListener("click", () => setMenuState(false)));
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setMenuState(false);
+  });
+
+  window.matchMedia("(min-width: 900px)").addEventListener("change", (event) => {
+    if (event.matches) setMenuState(false);
   });
 </script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--site-line);
+    background: var(--site-header);
+  }
+
+  .header-grid {
+    display: grid;
+    min-height: var(--site-header-height);
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--site-ink);
+    text-decoration: none;
+  }
+
+  .wordmark-name {
+    font-size: 1rem;
+    font-weight: 740;
+    letter-spacing: -0.025em;
+  }
+
+  .wordmark-index {
+    border-left: 1px solid var(--site-line-strong);
+    padding-left: 0.75rem;
+    color: var(--site-faint);
+    font-size: 0.66rem;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .desktop-navigation {
+    display: none;
+    align-self: stretch;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .navigation-link {
+    position: relative;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding-inline: 0.85rem;
+    color: var(--site-muted);
+    font-size: 0.875rem;
+    font-weight: 560;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .navigation-link::after {
+    position: absolute;
+    right: 0.85rem;
+    bottom: -10px;
+    left: 0.85rem;
+    height: 2px;
+    background: var(--site-cobalt);
+    content: "";
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale 180ms ease;
+  }
+
+  .navigation-link:hover,
+  .navigation-link.is-active {
+    color: var(--site-ink);
+  }
+
+  .navigation-link.is-active::after {
+    scale: 1 1;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .search-trigger,
+  .mobile-menu-button {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--site-line);
+    border-radius: var(--site-radius);
+    background: var(--site-surface);
+    color: var(--site-muted);
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .search-trigger:hover,
+  .mobile-menu-button:hover {
+    border-color: var(--site-cobalt);
+    background: var(--site-cobalt-soft);
+    color: var(--site-cobalt);
+  }
+
+  .search-label,
+  .search-trigger kbd {
+    display: none;
+  }
+
+  .mobile-navigation {
+    border-top: 1px solid var(--site-line);
+    padding-block: 0.5rem 0.75rem;
+    background: var(--site-header);
+  }
+
+  .mobile-navigation[hidden] {
+    display: none;
+  }
+
+  .mobile-navigation-link {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--site-line);
+    color: var(--site-muted);
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .mobile-navigation-link:last-child {
+    border-bottom: 0;
+  }
+
+  .mobile-navigation-link.is-active {
+    color: var(--site-ink);
+    font-weight: 650;
+  }
+
+  .mobile-link-marker {
+    width: 18px;
+    height: 1px;
+    background: var(--site-line-strong);
+  }
+
+  .mobile-navigation-link.is-active .mobile-link-marker {
+    height: 2px;
+    background: var(--site-cobalt);
+  }
+
+  @media (min-width: 900px) {
+    .header-grid {
+      grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
+    }
+
+    .desktop-navigation {
+      display: flex;
+    }
+
+    .mobile-menu-button {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .search-trigger {
+      min-width: 138px;
+      justify-content: flex-start;
+      gap: 0.6rem;
+      padding-inline: 0.75rem;
+    }
+
+    .search-label,
+    .search-trigger kbd {
+      display: inline;
+    }
+
+    .search-label {
+      font-size: 0.82rem;
+    }
+
+    .search-trigger kbd {
+      margin-left: auto;
+      color: var(--site-faint);
+      font-family: var(--font-sans);
+      font-size: 0.67rem;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .wordmark-index {
+      display: none;
+    }
+  }
+</style>

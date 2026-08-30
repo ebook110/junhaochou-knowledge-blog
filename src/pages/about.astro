@@ -1,32 +1,474 @@
 ---
-import { Github, Mail } from "lucide-astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import { ArrowUpRight, Github, Mail } from "lucide-astro";
 import { site } from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const coordinates = [
+  { label: "研究对象", value: "VNbTaTiZr 难熔高熵合金" },
+  { label: "计算方法", value: "LAMMPS 拉伸与微观结构分析" },
+  { label: "数据方法", value: "UTS 预测、验证与可解释分析" },
+  { label: "工程实践", value: "静态知识系统与自动化交付" },
+];
+
+const workflow = [
+  {
+    title: "定义问题",
+    description: "先明确材料对象、变量、适用范围与需要回答的工程问题。",
+  },
+  {
+    title: "建立方法链",
+    description: "把模拟、数据处理、模型比较和后处理组织成可复核步骤。",
+  },
+  {
+    title: "验证与解释",
+    description: "同时检查计算质量、预测可靠性与材料机理是否彼此一致。",
+  },
+  {
+    title: "沉淀为系统",
+    description: "用 Git、类型化内容和自动验证保留条件、版本与公开边界。",
+  },
+];
+
+const contentPaths = [
+  {
+    href: "/research/",
+    title: "研究",
+    description: "查看问题、方法、工具与公开边界。",
+  },
+  {
+    href: "/projects/",
+    title: "项目",
+    description: "查看可追溯的研究和工程工作流。",
+  },
+  {
+    href: "/articles/",
+    title: "文章",
+    description: "浏览长期维护的技术记录与教程。",
+  },
+];
+const pageDescription = "了解 JunhaoChou 的材料研究、计算方法、工程实践与公开写作原则。";
+const pageUrl = new URL("/about/", site.url).toString();
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: site.name,
+    url: pageUrl,
+    description: site.description,
+    sameAs: [site.github],
+    knowsAbout: ["VNbTaTiZr 难熔高熵合金", "分子动力学模拟", "极限抗拉强度机器学习", "工程自动化"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: site.url },
+      { "@type": "ListItem", position: 2, name: "关于", item: pageUrl },
+    ],
+  },
+];
 ---
 
-<BaseLayout title="关于" description="JunhaoChou Knowledge Blog 的写作原则与作者公开联系方式。"
-  ><div class="container max-w-4xl py-10">
-    <p class="subtle">材料科研 + 计算技术 + 工程实践</p><h1
-      class="mt-1 text-3xl font-bold text-slate-900 dark:text-white"
-    >
-      关于 {site.name}
-    </h1><div class="mt-8 space-y-6 text-base leading-8 text-slate-700 dark:text-slate-300">
-      <p>
-        本站用于沉淀材料计算、工程自动化、Linux
-        运维、仿真工具与个人学习项目中的可复现经验。文章尽量说明适用环境、验证日期和限制条件，让技术记录可以被未来的自己再次判断和使用。
-      </p><p>
-        涉及金融、隐私、网络服务与服务器的内容均以合法使用、风险识别、合规说明、常规部署或故障排查为边界。未验证的结论会被标记，而不是伪装为确定答案。
-      </p>
-    </div><div class="mt-8 flex flex-wrap gap-3">
-      <a
-        class="inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm text-white dark:bg-blue-600"
-        href={site.github}
-        target="_blank"
-        rel="noreferrer"><Github class="h-4 w-4" />GitHub</a
-      ><a
-        class="inline-flex items-center gap-2 border border-slate-300 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200"
-        href={`mailto:${site.email}`}><Mail class="h-4 w-4" />联系邮箱</a
-      >
-    </div>
-  </div></BaseLayout
->
+<BaseLayout title="关于" description={pageDescription} ogType="profile" jsonLd={jsonLd}>
+  <div class="container about-page">
+    <header class="about-intro">
+      <div class="about-intro-copy">
+        <h1>关于 {site.name}</h1>
+        <p class="about-lead">
+          我是一名会写代码的材料研究者，关注难熔高熵合金的微观变形、力学响应与数据解释，也把研究中形成的方法延伸到工程系统和长期知识管理。
+        </p>
+        <p class="profile-line">{site.profile}</p>
+      </div>
+
+      <dl class="coordinate-index">
+        {
+          coordinates.map((coordinate) => (
+            <div>
+              <dt>{coordinate.label}</dt>
+              <dd>{coordinate.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </header>
+
+    <section class="about-narrative" aria-labelledby="about-narrative-title">
+      <header>
+        <h2 id="about-narrative-title">研究与工程如何连接</h2>
+      </header>
+      <div class="narrative-copy">
+        <p>
+          当前研究围绕 VNbTaTiZr（Nb-Ta-Ti-V-Zr）难熔高熵合金展开：从势函数核对、LAMMPS
+          拉伸模拟，到位错、孪晶和结构演化分析，目标是把原子尺度变化与宏观力学响应放在同一条证据链中理解。
+        </p>
+        <p>
+          数据工作关注 UTS 的预测与解释。GPR、XGBoost、SVR、随机森林、RFECV 和 SHAP
+          不只是提高预测精度的工具，也用于检查特征作用是否符合材料机理、模型判断是否能够被复核。
+        </p>
+        <p>
+          工程实践承担另一部分工作：把脚本、内容、部署和验证组织成稳定系统。这个网站因此既是公开知识库，也是一个持续接受类型检查、静态搜索和可回滚发布约束的工程项目。
+        </p>
+      </div>
+    </section>
+
+    <section class="workflow-section" aria-labelledby="workflow-title">
+      <header>
+        <h2 id="workflow-title">工作方法</h2>
+        <p>从问题定义到公开记录，顺序本身就是质量控制的一部分。</p>
+      </header>
+      <ol>
+        {
+          workflow.map((step, index) => (
+            <li>
+              <span class="workflow-index">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="public-boundary" aria-labelledby="public-boundary-title">
+      <h2 id="public-boundary-title">公开边界与写作原则</h2>
+      <div>
+        <p>
+          本站公开研究问题、方法、工具、复现思路和已经适合发布的技术记录，不公开未发表的实验或模拟结果、完整参数矩阵、候选配方、敏感研究文件、访问凭据或服务器信息。
+        </p>
+        <p>
+          涉及金融、隐私、网络服务与服务器的内容，以合法使用、风险识别、合规说明、常规部署和故障排查为边界。不能被当前证据支持的结论会明确保留不确定性。
+        </p>
+      </div>
+    </section>
+
+    <section class="about-next" aria-labelledby="about-next-title">
+      <div>
+        <h2 id="about-next-title">继续了解</h2>
+        <nav class="content-paths" aria-label="继续浏览">
+          {
+            contentPaths.map((path) => (
+              <a href={path.href}>
+                <span>
+                  <strong>{path.title}</strong>
+                  <small>{path.description}</small>
+                </span>
+                <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+
+      <aside class="contact-panel" aria-labelledby="contact-title">
+        <h2 id="contact-title">联系与协作</h2>
+        <p>如需讨论材料计算、数据分析、工程系统或本站内容，可通过公开渠道联系。</p>
+        <div class="contact-actions">
+          <a href={site.github} target="_blank" rel="noreferrer">
+            <Github class="h-4 w-4" aria-hidden="true" />
+            GitHub
+          </a>
+          <a href={`mailto:${site.email}`}>
+            <Mail class="h-4 w-4" aria-hidden="true" />
+            联系邮箱
+          </a>
+        </div>
+      </aside>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    padding-block: clamp(3.5rem, 7vw, 6.25rem);
+  }
+
+  .about-intro {
+    display: grid;
+    gap: clamp(2.75rem, 6vw, 6rem);
+    align-items: end;
+    border-bottom: 1px solid var(--site-line-strong);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  .about-intro-copy {
+    max-width: 48rem;
+  }
+
+  h1 {
+    color: var(--site-ink);
+    font-size: clamp(2.8rem, 6.6vw, 5rem);
+    font-weight: 730;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .about-lead {
+    max-width: 43rem;
+    margin-top: 1.75rem;
+    color: var(--site-ink-soft);
+    font-size: clamp(1.05rem, 1.6vw, 1.18rem);
+    line-height: 1.85;
+  }
+
+  .profile-line {
+    margin-top: 1.4rem;
+    color: var(--site-muted);
+    font-size: 0.84rem;
+    line-height: 1.7;
+  }
+
+  .coordinate-index {
+    border-top: 1px solid var(--site-line-strong);
+  }
+
+  .coordinate-index > div {
+    display: grid;
+    grid-template-columns: 5.2rem minmax(0, 1fr);
+    gap: 1rem;
+    border-bottom: 1px solid var(--site-line);
+    padding-block: 0.85rem;
+  }
+
+  .coordinate-index dt {
+    color: var(--site-faint);
+    font-size: 0.72rem;
+    font-weight: 650;
+  }
+
+  .coordinate-index dd {
+    color: var(--site-ink-soft);
+    font-size: 0.84rem;
+    font-weight: 620;
+    line-height: 1.55;
+  }
+
+  .about-narrative,
+  .public-boundary {
+    display: grid;
+    gap: 1.75rem;
+    margin-top: clamp(5rem, 10vw, 8.5rem);
+  }
+
+  .about-narrative h2,
+  .workflow-section h2,
+  .public-boundary h2,
+  .about-next h2 {
+    color: var(--site-ink);
+    font-size: clamp(1.45rem, 2.5vw, 1.9rem);
+    font-weight: 690;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .narrative-copy {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 75ch;
+  }
+
+  .narrative-copy p,
+  .public-boundary p {
+    color: var(--site-ink-soft);
+    font-size: 1rem;
+    line-height: 1.95;
+  }
+
+  .workflow-section {
+    margin-top: clamp(5rem, 10vw, 8.5rem);
+  }
+
+  .workflow-section > header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid var(--site-line-strong);
+    padding-bottom: 1rem;
+  }
+
+  .workflow-section > header p {
+    max-width: 32rem;
+    color: var(--site-muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .workflow-section ol {
+    display: grid;
+    border-bottom: 1px solid var(--site-line);
+    list-style: none;
+  }
+
+  .workflow-section li {
+    min-width: 0;
+    border-bottom: 1px solid var(--site-line);
+    padding: 1.4rem 0;
+  }
+
+  .workflow-section li:last-child {
+    border-bottom: 0;
+  }
+
+  .workflow-index {
+    color: var(--site-cobalt);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 650;
+  }
+
+  .workflow-section h3 {
+    margin-top: 1.1rem;
+    color: var(--site-ink);
+    font-size: 1rem;
+    font-weight: 680;
+  }
+
+  .workflow-section li p {
+    margin-top: 0.65rem;
+    color: var(--site-muted);
+    font-size: 0.84rem;
+    line-height: 1.7;
+  }
+
+  .public-boundary {
+    border-block: 1px solid var(--site-line-strong);
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .public-boundary > div {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 75ch;
+  }
+
+  .about-next {
+    display: grid;
+    gap: clamp(3rem, 7vw, 6rem);
+    margin-top: clamp(5rem, 10vw, 8.5rem);
+  }
+
+  .content-paths {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--site-line-strong);
+  }
+
+  .content-paths a {
+    display: flex;
+    min-height: 72px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--site-line);
+    color: var(--site-ink);
+    text-decoration: none;
+  }
+
+  .content-paths a:hover {
+    color: var(--site-cobalt);
+  }
+
+  .content-paths strong,
+  .content-paths small {
+    display: block;
+  }
+
+  .content-paths strong {
+    font-size: 0.95rem;
+    font-weight: 680;
+  }
+
+  .content-paths small {
+    margin-top: 0.3rem;
+    color: var(--site-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .contact-panel {
+    align-self: start;
+    border-block: 1px solid var(--site-line-strong);
+    padding-block: 1.5rem;
+  }
+
+  .contact-panel > p {
+    max-width: 31rem;
+    margin-top: 0.85rem;
+    color: var(--site-muted);
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .contact-actions a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--site-line-strong);
+    border-radius: var(--site-radius);
+    padding-inline: 0.9rem;
+    color: var(--site-ink-soft);
+    font-size: 0.82rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .contact-actions a:hover {
+    border-color: var(--site-cobalt);
+    background: var(--site-cobalt-soft);
+    color: var(--site-cobalt);
+  }
+
+  @media (min-width: 820px) {
+    .workflow-section ol {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .workflow-section li {
+      border-right: 1px solid var(--site-line);
+      border-bottom: 0;
+      padding: 1.5rem;
+    }
+
+    .workflow-section li:first-child {
+      padding-left: 0;
+    }
+
+    .workflow-section li:last-child {
+      border-right: 0;
+      padding-right: 0;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .about-intro {
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    }
+
+    .about-narrative,
+    .public-boundary {
+      grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
+      gap: clamp(3rem, 7vw, 7rem);
+    }
+
+    .about-next {
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .workflow-section > header {
+      display: block;
+    }
+
+    .workflow-section > header p {
+      margin-top: 0.65rem;
+    }
+  }
+</style>

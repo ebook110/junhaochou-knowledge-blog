@@ -2,7 +2,7 @@
 
 > 适用站点：[https://junhaochou.com/](https://junhaochou.com/)  
 > 在线管理后台：[https://junhaochou.com/admin/](https://junhaochou.com/admin/)  
-> 最后核对：2026-08-08
+> 文档最后核对：2026-08-30
 
 ## 1. 先理解网站的工作方式
 
@@ -30,9 +30,10 @@ Cloudflare 对外提供 junhaochou.com
 
 普通访客直接打开首页，可以使用：
 
-- 文章列表：浏览全部技术文章。
+- 研究与项目：了解公开的研究问题、方法链、工程记录和披露边界。
+- 文章中心：按四个展示领域浏览全部技术文章。
 - 分类、标签和系列：按主题组织内容。
-- 搜索：使用 Pagefind 搜索已发布文章。
+- 搜索：使用 Pagefind 搜索已发布的文章、研究和项目详情。
 - RSS：订阅 `/rss.xml` 获取更新。
 - 深色模式、移动端目录和文章阅读进度等前端功能。
 
@@ -45,7 +46,7 @@ Cloudflare 对外提供 junhaochou.com
 1. 打开 [https://junhaochou.com/admin/](https://junhaochou.com/admin/)。
 2. Cloudflare Access 会要求验证获授权邮箱；按页面提示接收一次性验证码。
 3. 通过 Access 后，再使用具有仓库写权限的 GitHub 账号授权 Decap CMS。
-4. 登录后进入 **文章** 集合。
+4. 登录后进入 **文章**、**研究方向** 或 **项目** 集合。
 
 如果 Cloudflare 邮箱验证成功但 GitHub 登录失败，通常是 GitHub OAuth、仓库权限或 OAuth Worker 配置问题，不要反复创建个人访问令牌。
 
@@ -70,7 +71,7 @@ Cloudflare 对外提供 junhaochou.com
 - **最后验证日期**：教程命令或界面被实际复核的日期。
 - **正文**：使用 Markdown/MDX 源码编写。
 
-正文可使用标题、列表、引用、代码块、链接、表格、KaTeX 和项目支持的 MDX 组件。复杂 Mermaid 或自定义组件建议在本地编辑，因为 CMS 预览已关闭，后台不会完整模拟最终页面。
+正文可使用标题、列表、引用、代码块、链接、表格、KaTeX 和项目支持的 MDX 组件。后台提供 Markdown 近似预览；复杂 Mermaid、KaTeX 或自定义 MDX 组件建议在本地复核，因为生产构建才是最终页面依据。
 
 ### 3.3 保存与发布
 
@@ -106,6 +107,8 @@ npm.cmd run dev
 ### 4.2 编辑内容
 
 - 文章：`src/content/articles/*.mdx`
+- 研究：`src/content/research/*.mdx`
+- 项目：`src/content/projects/*.mdx`
 - 封面：`public/images/covers/*.webp`
 - 内容字段规则：`src/content.config.ts`
 - 网站公开信息：`src/data/site.ts`
@@ -134,12 +137,12 @@ npm.cmd run check
 npm.cmd run test
 ```
 
-`npm.cmd run test` 会构建站点、生成 Pagefind 搜索索引、检查内部链接并运行 Playwright。任何一步失败都应修复根因，不要删除或跳过检查。
+`npm.cmd run test` 会校验内容契约与无密钥规则、构建站点、生成 Pagefind 搜索索引、检查内部链接和分发产物，并运行 Playwright。任何一步失败都应修复根因，不要删除或跳过检查。
 
 检查通过后：
 
 ```powershell
-git add src/content/articles public/images/covers
+git add src/content public/images/covers
 git commit -m "docs(article): add lammps tensile workflow"
 git push -u origin content/lammps-tensile-workflow
 ```
@@ -164,14 +167,16 @@ GitHub Actions 是当前的正式上线入口；不要同时在 VPS 手工改文
 发布完成后依次检查：
 
 - GitHub Actions 的 `verify` 和 `deploy` 都是绿色成功状态。
-- 首页能够打开，新文章出现在正确分类和文章列表中。
+- Actions 显示的部署 Git SHA 与本次合并提交一致，运行镜像 revision 检查通过。
+- 首页、研究、项目、文章与搜索入口能够打开，新内容出现在正确列表中。
 - 文章标题、目录、代码块、图片、数学公式和移动端布局正常。
 - 搜索能找到文章；Pagefind 正常情况下应在约 10 分钟内刷新。
 - `/rss.xml` 能访问并包含新文章。
 - `/healthz/` 返回 HTTP 200。
+- 未登录访问 `/admin/` 会跳转到 Cloudflare Access，而不是直接暴露后台。
 - 浏览器无明显控制台错误，外链和下载链接可用。
 
-截至 2026-08-08，线上 Pagefind 响应仍显示 4 小时浏览器缓存，而目标策略是 10 分钟。应在 Cloudflare Dashboard 手工添加 `Pagefind ten minutes` 规则，并确保它排在可能命中 `/pagefind/` 的通用规则之前。
+上次公开核对（2026-08-08）时，线上 Pagefind 响应仍显示 4 小时浏览器缓存，而目标策略是 10 分钟。每次发布后都应重新实测；如果仍为 4 小时，应在 Cloudflare Dashboard 手工添加 `Pagefind ten minutes` 规则，并确保它排在可能命中 `/pagefind/` 的通用规则之前。
 
 ## 7. 后续维护周期
 
@@ -234,7 +239,7 @@ docker builder prune --filter "until=720h"
 2. 检查 Pull Request 是否真正合并到 `main`。
 3. 检查文章是否仍为 `draft: true`。
 4. 普通 HTML 应重新验证；图片若沿用旧文件名可能仍被缓存。
-5. 搜索索引受 Pagefind 缓存影响，等待目标 10 分钟后重试；当前线上规则未修正前可能需要最多约 4 小时。
+5. 搜索索引受 Pagefind 缓存影响，等待目标 10 分钟后重试；若本次响应头实测仍为旧规则，可能需要最多约 4 小时。
 
 ### VPS 部署失败
 

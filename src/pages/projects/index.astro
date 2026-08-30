@@ -1,0 +1,57 @@
+---
+import ProjectCard from "../../components/ProjectCard.astro";
+import { getDomain, site } from "../../data/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPublishedProjects } from "../../utils/content";
+
+const entries = await getPublishedProjects();
+const collectionUrl = new URL("/projects/", site.url).toString();
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "项目记录",
+    description: "JunhaoChou 的材料计算、机器学习与工程系统项目记录。",
+    url: collectionUrl,
+    hasPart: entries.map((entry) => ({
+      "@type": "CreativeWork",
+      name: entry.data.title,
+      url: new URL(`/projects/${entry.data.slug}/`, site.url).toString(),
+    })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: site.url },
+      { "@type": "ListItem", position: 2, name: "项目", item: collectionUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="项目"
+  description="浏览 JunhaoChou 的材料计算、机器学习与工程系统项目记录。"
+  jsonLd={jsonLd}
+>
+  <div class="container py-12 lg:py-16">
+    <header class="max-w-3xl border-b border-[var(--site-line)] pb-8">
+      <p class="subtle">Selected projects</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight text-[var(--site-ink)] sm:text-4xl">
+        项目记录
+      </h1>
+      <p class="mt-5 text-base leading-8 text-[var(--site-muted)]">
+        以目标、方法、工具和验证边界记录项目，不展示虚构指标或未经公开的研究结果。
+      </p>
+    </header>
+    <section class="mt-8 grid gap-5 lg:grid-cols-2" aria-label="项目列表">
+      <h2 class="sr-only">全部项目</h2>
+      {
+        entries.map((entry) => (
+          <ProjectCard project={entry.data} domainLabel={getDomain(entry.data.domain).name} />
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>

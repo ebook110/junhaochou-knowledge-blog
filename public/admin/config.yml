@@ -32,8 +32,6 @@ collections:
     view_groups:
       - { label: "分类", field: category }
       - { label: "草稿状态", field: draft }
-    editor:
-      preview: false
     fields:
       - { label: 标题, name: title, widget: string, required: true }
       - { label: 摘要, name: description, widget: text, required: true, hint: "20 至 220 个字符。" }
@@ -162,5 +160,263 @@ collections:
         name: body
         widget: markdown
         required: false
+        hint: "后台仅提供 Markdown 近似预览；MDX 组件、Mermaid 与 KaTeX 以生产构建结果为准。"
+        buttons: [bold, italic, code, link, quote, bulleted-list, numbered-list]
+        editor_components: []
+
+  - name: research
+    label: 研究方向
+    label_singular: 研究方向
+    folder: src/content/research
+    create: true
+    delete: true
+    extension: mdx
+    format: frontmatter
+    slug: "{{slug}}"
+    preview_path: "research/{{slug}}"
+    summary: "{{title}} | {{domain}} | {{status}}"
+    sortable_fields: [title, domain, status, featured, order, updatedDate, lastVerified]
+    view_filters:
+      - { label: "草稿", field: draft, pattern: true }
+      - { label: "已公开", field: draft, pattern: false }
+      - { label: "首页精选", field: featured, pattern: true }
+    view_groups:
+      - { label: "领域", field: domain }
+      - { label: "状态", field: status }
+    fields:
+      - { label: 标题, name: title, widget: string, required: true }
+      - { label: 摘要, name: summary, widget: text, required: true, hint: "20 至 220 个字符。" }
+      - {
+          label: URL Slug,
+          name: slug,
+          widget: string,
+          required: true,
+          pattern: ["^[a-z0-9]+(?:-[a-z0-9]+)*$", "使用稳定的小写 ASCII 路径。"],
+        }
+      - label: 领域
+        name: domain
+        widget: select
+        required: true
+        options:
+          - { label: "科研计算", value: scientific-computing }
+          - { label: "工程自动化", value: engineering-automation }
+          - { label: "系统与部署", value: systems-deployment }
+          - { label: "网络与数字风险", value: network-risk }
+      - label: 状态
+        name: status
+        widget: select
+        required: true
+        options:
+          - { label: "持续研究", value: active }
+          - { label: "方法归档", value: documented }
+      - {
+          label: 研究问题,
+          name: questions,
+          widget: list,
+          required: true,
+          field: { label: 问题, name: question, widget: string },
+        }
+      - {
+          label: 方法,
+          name: methods,
+          widget: list,
+          required: true,
+          field: { label: 方法, name: method, widget: string },
+        }
+      - {
+          label: 工具,
+          name: tools,
+          widget: list,
+          required: true,
+          field: { label: 工具, name: tool, widget: string },
+        }
+      - {
+          label: 标签,
+          name: tags,
+          widget: list,
+          required: true,
+          field: { label: 标签, name: tag, widget: string },
+        }
+      - {
+          label: 关联项目 Slug,
+          name: relatedProjects,
+          widget: list,
+          required: false,
+          field: { label: Slug, name: relatedProject, widget: string },
+        }
+      - {
+          label: 关联文章 Slug,
+          name: relatedArticles,
+          widget: list,
+          required: false,
+          field: { label: Slug, name: relatedArticle, widget: string },
+        }
+      - label: 公开链接
+        name: links
+        widget: list
+        required: false
+        fields:
+          - { label: 名称, name: label, widget: string, required: true }
+          - { label: URL, name: url, widget: string, required: true }
+      - {
+          label: 公开说明,
+          name: disclosure,
+          widget: text,
+          required: true,
+          hint: "明确说明未公开结果、数据和敏感信息的边界。",
+        }
+      - { label: 首页精选, name: featured, widget: boolean, required: false, default: false }
+      - { label: 展示顺序, name: order, widget: number, value_type: int, min: 1, required: true }
+      - { label: 草稿, name: draft, widget: boolean, required: false, default: false }
+      - {
+          label: 更新日期,
+          name: updatedDate,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: true,
+        }
+      - {
+          label: 最后验证日期,
+          name: lastVerified,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: false,
+        }
+      - label: 正文（Markdown / MDX 源码）
+        name: body
+        widget: markdown
+        required: true
+        hint: "后台仅提供 Markdown 近似预览；MDX 组件、Mermaid 与 KaTeX 以生产构建结果为准。"
+        buttons: [bold, italic, code, link, quote, bulleted-list, numbered-list]
+        editor_components: []
+
+  - name: projects
+    label: 项目
+    label_singular: 项目
+    folder: src/content/projects
+    create: true
+    delete: true
+    extension: mdx
+    format: frontmatter
+    slug: "{{slug}}"
+    preview_path: "projects/{{slug}}"
+    summary: "{{title}} | {{domain}} | {{status}}"
+    sortable_fields: [title, domain, status, featured, order, updatedDate, lastVerified]
+    view_filters:
+      - { label: "草稿", field: draft, pattern: true }
+      - { label: "已公开", field: draft, pattern: false }
+      - { label: "首页精选", field: featured, pattern: true }
+    view_groups:
+      - { label: "领域", field: domain }
+      - { label: "状态", field: status }
+    fields:
+      - { label: 标题, name: title, widget: string, required: true }
+      - { label: 摘要, name: summary, widget: text, required: true, hint: "20 至 220 个字符。" }
+      - {
+          label: URL Slug,
+          name: slug,
+          widget: string,
+          required: true,
+          pattern: ["^[a-z0-9]+(?:-[a-z0-9]+)*$", "使用稳定的小写 ASCII 路径。"],
+        }
+      - label: 领域
+        name: domain
+        widget: select
+        required: true
+        options:
+          - { label: "科研计算", value: scientific-computing }
+          - { label: "工程自动化", value: engineering-automation }
+          - { label: "系统与部署", value: systems-deployment }
+          - { label: "网络与数字风险", value: network-risk }
+      - label: 状态
+        name: status
+        widget: select
+        required: true
+        options:
+          - { label: "持续推进", value: active }
+          - { label: "持续维护", value: maintained }
+          - { label: "阶段完成", value: completed }
+      - { label: 职责, name: role, widget: string, required: true }
+      - {
+          label: 方法,
+          name: methods,
+          widget: list,
+          required: true,
+          field: { label: 方法, name: method, widget: string },
+        }
+      - {
+          label: 工具,
+          name: tools,
+          widget: list,
+          required: true,
+          field: { label: 工具, name: tool, widget: string },
+        }
+      - {
+          label: 标签,
+          name: tags,
+          widget: list,
+          required: true,
+          field: { label: 标签, name: tag, widget: string },
+        }
+      - {
+          label: 关联研究 Slug,
+          name: relatedResearch,
+          widget: list,
+          required: false,
+          field: { label: Slug, name: relatedResearchItem, widget: string },
+        }
+      - {
+          label: 关联文章 Slug,
+          name: relatedArticles,
+          widget: list,
+          required: false,
+          field: { label: Slug, name: relatedArticle, widget: string },
+        }
+      - { label: 公开仓库, name: repository, widget: string, required: false }
+      - { label: 公开演示, name: demo, widget: string, required: false }
+      - label: 相关公开链接
+        name: links
+        widget: list
+        required: false
+        fields:
+          - { label: 名称, name: label, widget: string, required: true }
+          - { label: URL, name: url, widget: string, required: true }
+      - {
+          label: 公开说明,
+          name: disclosure,
+          widget: text,
+          required: true,
+          hint: "明确说明未公开结果、数据、凭据和敏感配置的边界。",
+        }
+      - { label: 首页精选, name: featured, widget: boolean, required: false, default: false }
+      - { label: 展示顺序, name: order, widget: number, value_type: int, min: 1, required: true }
+      - { label: 草稿, name: draft, widget: boolean, required: false, default: false }
+      - {
+          label: 更新日期,
+          name: updatedDate,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: true,
+        }
+      - {
+          label: 最后验证日期,
+          name: lastVerified,
+          widget: datetime,
+          format: "YYYY-MM-DD",
+          date_format: "YYYY-MM-DD",
+          time_format: false,
+          required: false,
+        }
+      - label: 正文（Markdown / MDX 源码）
+        name: body
+        widget: markdown
+        required: true
+        hint: "后台仅提供 Markdown 近似预览；MDX 组件、Mermaid 与 KaTeX 以生产构建结果为准。"
         buttons: [bold, italic, code, link, quote, bulleted-list, numbered-list]
         editor_components: []

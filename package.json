@@ -5,15 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build && pagefind --site dist",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && npm run validate:content",
+    "validate:content": "node scripts/validate-content.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:links": "node scripts/check-links.mjs",
-    "test:e2e": "playwright test",
-    "test": "npm run build && npm run test:links && npm run test:e2e"
+    "test:dist": "node scripts/check-dist.mjs",
+    "test:performance": "node scripts/check-web-vitals.mjs",
+    "test:secrets": "node scripts/check-secrets.mjs",
+    "test:e2e": "node scripts/run-playwright.mjs",
+    "test": "npm run check && npm run test:secrets && npm run build && npm run test:links && npm run test:dist && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
@@ -28,15 +32,21 @@
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.1",
+    "decap-cms-app": "3.15.1",
     "eslint": "^9.39.1",
     "eslint-plugin-astro": "^1.5.0",
     "pagefind": "^1.5.2",
     "prettier": "^3.7.4",
     "prettier-plugin-astro": "^0.14.1",
-    "typescript-eslint": "^8.66.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.66.0"
+  },
+  "overrides": {
+    "postcss": {
+      "nanoid": "3.3.18"
+    }
   }
 }

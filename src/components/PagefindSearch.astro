@@ -1,0 +1,134 @@
+---
+import { Search } from "lucide-astro";
+import { domains } from "../data/site";
+
+interface Props {
+  id: string;
+  variant?: "modal" | "page";
+  limit?: number;
+  autoLoad?: boolean;
+}
+
+const { id, variant = "page", limit = 24, autoLoad = false } = Astro.props;
+const inputId = `${id}-input`;
+const resultsId = `${id}-results`;
+const statusId = `${id}-status`;
+const domainLabels = Object.fromEntries(domains.map((domain) => [domain.slug, domain.name]));
+const filterClass =
+  "h-11 min-w-0 border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/30 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200";
+---
+
+<div
+  class:list={["pagefind-search", variant === "page" ? "mt-8" : ""]}
+  data-pagefind-search
+  data-pagefind-auto-load={autoLoad ? "true" : "false"}
+  data-pagefind-domain-labels={JSON.stringify(domainLabels)}
+  data-pagefind-limit={limit}
+>
+  <form data-pagefind-form role="search" aria-label="站内搜索" novalidate>
+    <div
+      class="flex min-h-12 items-center border border-slate-300 bg-white p-1.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950"
+    >
+      <Search class="mx-2 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+      <label class="sr-only" for={inputId}>搜索关键词</label>
+      <input
+        id={inputId}
+        data-pagefind-input
+        class="min-w-0 flex-1 bg-transparent px-1 py-2 text-base text-slate-950 outline-none placeholder:text-slate-400 dark:text-white"
+        type="search"
+        inputmode="search"
+        enterkeyhint="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="搜索研究、项目、文章与标签"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        aria-controls={resultsId}
+        aria-describedby={statusId}
+        aria-expanded="false"
+      />
+      <button
+        type="submit"
+        class="min-h-11 shrink-0 bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+      >
+        搜索
+      </button>
+    </div>
+
+    <fieldset class="mt-3 grid gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
+      <legend class="sr-only">筛选搜索结果</legend>
+      <label class="grid gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        类型
+        <select
+          class={filterClass}
+          data-pagefind-filter="type"
+          data-pagefind-all-label="全部类型"
+          disabled
+        >
+          <option value="">全部类型</option>
+        </select>
+      </label>
+      <label class="grid gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        领域
+        <select
+          class={filterClass}
+          data-pagefind-filter="domain"
+          data-pagefind-all-label="全部领域"
+          disabled
+        >
+          <option value="">全部领域</option>
+        </select>
+      </label>
+      <label class="grid gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+        标签
+        <select
+          class={filterClass}
+          data-pagefind-filter="tag"
+          data-pagefind-all-label="全部标签"
+          disabled
+        >
+          <option value="">全部标签</option>
+        </select>
+      </label>
+      <button
+        type="button"
+        data-pagefind-clear
+        class="min-h-11 self-end border border-slate-300 px-3 text-sm font-medium text-slate-600 transition hover:border-blue-500 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:text-blue-300"
+        disabled
+      >
+        清除
+      </button>
+    </fieldset>
+  </form>
+
+  <p
+    id={statusId}
+    data-pagefind-status
+    class="mt-4 text-sm text-slate-500 dark:text-slate-400"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    输入关键词，或选择类型、领域、标签筛选。
+  </p>
+  <div
+    id={resultsId}
+    data-pagefind-results
+    class:list={["mt-3 space-y-2", variant === "modal" ? "max-h-[48vh] overflow-y-auto pr-1" : ""]}
+    role="listbox"
+    aria-label="搜索结果"
+  >
+    <div
+      class="border border-dashed border-slate-300 p-4 text-sm leading-6 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+    >
+      Pagefind 会在本地静态索引中搜索，不会把查询发送到外部服务。
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initializePagefindSearch } from "../scripts/pagefind-search";
+
+  initializePagefindSearch();
+</script>

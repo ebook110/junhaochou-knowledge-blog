@@ -4,16 +4,48 @@ import { Moon, Sun } from "lucide-astro";
 
 <button
   id="theme-toggle"
-  class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-  aria-label="切换深浅色模式"
+  class="icon-button"
+  type="button"
+  aria-label="切换为深色模式"
+  aria-pressed="false"
+  title="切换为深色模式"
 >
   <Sun class="h-4 w-4 dark:hidden" />
   <Moon class="hidden h-4 w-4 dark:block" />
 </button>
 <script>
   const button = document.querySelector<HTMLButtonElement>("#theme-toggle");
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const savedTheme = () => {
+    try {
+      return localStorage.getItem("junhao-theme");
+    } catch {
+      return null;
+    }
+  };
+
+  const applyTheme = (dark: boolean, persist = false) => {
+    document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    if (persist) {
+      try {
+        localStorage.setItem("junhao-theme", dark ? "dark" : "light");
+      } catch {}
+    }
+    const next = dark ? "浅色" : "深色";
+    button?.setAttribute("aria-pressed", String(dark));
+    button?.setAttribute("aria-label", `切换为${next}模式`);
+    button?.setAttribute("title", `切换为${next}模式`);
+    document.dispatchEvent(new CustomEvent("junhao:theme", { detail: { dark } }));
+  };
+
+  applyTheme(document.documentElement.classList.contains("dark"));
   button?.addEventListener("click", () => {
-    const dark = document.documentElement.classList.toggle("dark");
-    localStorage.setItem("junhao-theme", dark ? "dark" : "light");
+    applyTheme(!document.documentElement.classList.contains("dark"), true);
+  });
+
+  media.addEventListener("change", (event) => {
+    if (!savedTheme()) applyTheme(event.matches);
   });
 </script>

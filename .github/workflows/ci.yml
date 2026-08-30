@@ -8,24 +8,83 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run check
-      - run: npm run test
-      - run: docker compose config
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Check formatting
+        run: npm run format:check
+      - name: Lint source
+        run: npm run lint
+      - name: Scan tracked source for credentials
+        run: npm run test:secrets
+      - name: Validate types and content contracts
+        run: npm run check
+      - name: Build static site and Pagefind index
+        run: npm run build
+      - name: Check internal links
+        run: npm run test:links
+      - name: Check distribution contracts
+        run: npm run test:dist
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser tests
+        run: npm run test:e2e
+      - name: Check representative mobile web-vitals budgets
+        run: |
+          set -euo pipefail
+          node scripts/serve-dist.mjs --host 127.0.0.1 --port 4322 >/tmp/junhao-preview.log 2>&1 &
+          preview_pid=$!
+          cleanup_preview() {
+            kill "$preview_pid" >/dev/null 2>&1 || true
+          }
+          trap cleanup_preview EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4322/healthz/ >/dev/null; then break; fi
+            if [ "$attempt" -eq 30 ]; then cat /tmp/junhao-preview.log; exit 1; fi
+            sleep 1
+          done
+          npm run test:performance -- http://127.0.0.1:4322
+      - name: Validate default Compose configuration
+        run: docker compose config
+      - name: Run production-image smoke checks
+        env:
+          BUILD_REVISION: ${{ github.sha }}
+          HOST_PORT: "8081"
+        run: |
+          set -Eeuo pipefail
+          diagnostics() {
+            docker compose ps || true
+            docker compose logs --no-color --tail=200 || true
+          }
+          cleanup() {
+            docker compose down --remove-orphans >/dev/null 2>&1 || true
+          }
+          trap diagnostics ERR
+          trap cleanup EXIT
+          docker compose build
+          image_id=$(docker compose images -q junhaochou-blog)
+          test -n "$image_id"
+          test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$image_id")" = "$BUILD_REVISION"
+          docker run --rm --entrypoint /bin/sh "$image_id" -c \
+            'test ! -e /app && test ! -e /usr/share/nginx/html/package.json && test ! -d /usr/share/nginx/html/node_modules'
+          docker compose up -d --wait --wait-timeout 90
+          node scripts/check-container.mjs "http://127.0.0.1:${HOST_PORT}/"
 
   deploy:
     needs: verify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     concurrency:
       group: production-deploy
       cancel-in-progress: false
@@ -35,26 +94,52 @@ jobs:
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
         run: |
+          set -euo pipefail
+          : "${VPS_KNOWN_HOSTS:?VPS_KNOWN_HOSTS is required}"
+          : "${VPS_SSH_KEY:?VPS_SSH_KEY is required}"
           install -d -m 700 "$RUNNER_TEMP/ssh"
           printf '%s\n' "$VPS_SSH_KEY" > "$RUNNER_TEMP/ssh/id_ed25519"
           chmod 600 "$RUNNER_TEMP/ssh/id_ed25519"
           printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/ssh/known_hosts"
       - name: Deploy verified main to VPS
         env:
+          EXPECTED_REVISION: ${{ github.sha }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_HOST_PORT: ${{ secrets.VPS_HOST_PORT }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_PROJECT_DIR: ${{ secrets.VPS_PROJECT_DIR }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
+          set -euo pipefail
+          : "${EXPECTED_REVISION:?EXPECTED_REVISION is required}"
+          : "${VPS_HOST:?VPS_HOST is required}"
+          : "${VPS_HOST_PORT:?VPS_HOST_PORT is required}"
+          : "${VPS_PORT:?VPS_PORT is required}"
+          : "${VPS_PROJECT_DIR:?VPS_PROJECT_DIR is required}"
+          : "${VPS_USER:?VPS_USER is required}"
+          case "$VPS_PORT" in
+            *[!0-9]*|'') echo "VPS_PORT must be numeric" >&2; exit 1 ;;
+          esac
+          if [ "$VPS_PORT" -lt 1 ] || [ "$VPS_PORT" -gt 65535 ]; then
+            echo "VPS_PORT must be between 1 and 65535" >&2
+            exit 1
+          fi
+          case "$VPS_USER" in
+            *[!A-Za-z0-9._-]*|'') echo "VPS_USER contains unsupported characters" >&2; exit 1 ;;
+          esac
+          case "$VPS_HOST" in
+            -*|*[[:space:]]*) echo "VPS_HOST contains unsupported characters" >&2; exit 1 ;;
+          esac
           remote_project_dir=$(printf '%q' "$VPS_PROJECT_DIR")
           remote_host_port=$(printf '%q' "$VPS_HOST_PORT")
+          remote_revision=$(printf '%q' "$EXPECTED_REVISION")
           ssh -i "$RUNNER_TEMP/ssh/id_ed25519" \
             -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
             -p "$VPS_PORT" \
-            "$VPS_USER@$VPS_HOST" "VPS_PROJECT_DIR=$remote_project_dir VPS_HOST_PORT=$remote_host_port bash -s" <<'REMOTE'
+            "$VPS_USER@$VPS_HOST" "EXPECTED_REVISION=$remote_revision VPS_PROJECT_DIR=$remote_project_dir VPS_HOST_PORT=$remote_host_port bash -s" <<'REMOTE'
           set -euo pipefail
+          : "${EXPECTED_REVISION:?EXPECTED_REVISION is required}"
           : "${VPS_PROJECT_DIR:?VPS_PROJECT_DIR is required}"
           : "${VPS_HOST_PORT:?VPS_HOST_PORT is required}"
           case "$VPS_PROJECT_DIR" in
@@ -64,17 +149,102 @@ jobs:
           case "$VPS_HOST_PORT" in
             *[!0-9]*|'') echo "VPS_HOST_PORT must be numeric" >&2; exit 1 ;;
           esac
+          if [ "$VPS_HOST_PORT" -lt 1 ] || [ "$VPS_HOST_PORT" -gt 65535 ]; then
+            echo "VPS_HOST_PORT must be between 1 and 65535" >&2
+            exit 1
+          fi
+          case "$EXPECTED_REVISION" in
+            *[!0-9a-f]*|'') echo "EXPECTED_REVISION must be a lowercase Git object ID" >&2; exit 1 ;;
+          esac
+          if [ "${#EXPECTED_REVISION}" -ne 40 ]; then
+            echo "EXPECTED_REVISION must be a full 40-character Git SHA" >&2
+            exit 1
+          fi
           cd "$VPS_PROJECT_DIR"
-          git status --short
           if [ -n "$(git status --porcelain)" ]; then
             echo "Refusing to deploy over local VPS changes." >&2
             exit 1
           fi
+          previous_revision=$(git rev-parse HEAD)
+          rollback_available=0
+          rollback_on_error() {
+            exit_code=$?
+            if [ "$exit_code" -ne 0 ] && [ "$rollback_available" -eq 1 ]; then
+              echo "Deployment smoke failed; restoring the preserved stable image." >&2
+              docker image tag junhaochou-knowledge-blog:rollback junhaochou-knowledge-blog:latest
+              HOST_PORT="$VPS_HOST_PORT" docker compose up -d --force-recreate --no-build || true
+              curl -fsS "http://127.0.0.1:${VPS_HOST_PORT}/healthz/" || true
+            fi
+            exit "$exit_code"
+          }
+          trap rollback_on_error EXIT
+          running_container=$(HOST_PORT="$VPS_HOST_PORT" docker compose ps -q junhaochou-blog)
+          if [ -n "$running_container" ]; then
+            previous_image=$(docker inspect --format '{{.Image}}' "$running_container")
+            docker image tag "$previous_image" junhaochou-knowledge-blog:rollback
+            rollback_available=1
+            echo "Preserved rollback image from revision $previous_revision."
+          fi
           git fetch origin main
-          git merge --ff-only origin/main
+          git cat-file -e "${EXPECTED_REVISION}^{commit}"
+          git merge --ff-only "$EXPECTED_REVISION"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_REVISION"
           HOST_PORT="$VPS_HOST_PORT" docker compose config
-          HOST_PORT="$VPS_HOST_PORT" docker compose build
-          HOST_PORT="$VPS_HOST_PORT" docker compose up -d
+          BUILD_REVISION="$EXPECTED_REVISION" HOST_PORT="$VPS_HOST_PORT" docker compose build
+          HOST_PORT="$VPS_HOST_PORT" docker compose up -d --wait --wait-timeout 90
           HOST_PORT="$VPS_HOST_PORT" docker compose ps
-          curl -fsS "http://127.0.0.1:${VPS_HOST_PORT}/healthz/"
+          deployed_container=$(HOST_PORT="$VPS_HOST_PORT" docker compose ps -q junhaochou-blog)
+          test -n "$deployed_container"
+          test "$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$deployed_container")" = "$EXPECTED_REVISION"
+          HOST_PORT="$VPS_HOST_PORT" docker compose port junhaochou-blog 80 | grep -Fq "127.0.0.1:${VPS_HOST_PORT}"
+          for route in / /research/ /projects/ /articles/ /search/ /rss.xml /admin/; do
+            curl -fsS --retry 3 --retry-connrefused "http://127.0.0.1:${VPS_HOST_PORT}${route}" >/dev/null
+          done
+          health_body=$(curl -fsS "http://127.0.0.1:${VPS_HOST_PORT}/healthz/")
+          grep -Fq "healthy" <<<"$health_body"
+          trap - EXIT
+          REMOTE
+      - name: Verify public routes and Access boundary
+        run: |
+          set -euo pipefail
+          for route in / /research/ /projects/ /articles/ /search/ /rss.xml /healthz/; do
+            curl -fsS --retry 5 --retry-delay 3 "https://junhaochou.com${route}" >/dev/null
+          done
+          admin_status=$(curl -sS -o /dev/null -w '%{http_code}' --max-redirs 0 https://junhaochou.com/admin/)
+          case "$admin_status" in
+            301|302|303|307|308) ;;
+            *) echo "Expected Cloudflare Access redirect for /admin/, received HTTP $admin_status" >&2; exit 1 ;;
+          esac
+      - name: Restore preserved image after failed deployment smoke
+        if: failure()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_HOST_PORT: ${{ secrets.VPS_HOST_PORT }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_PROJECT_DIR: ${{ secrets.VPS_PROJECT_DIR }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          : "${VPS_HOST:?VPS_HOST is required}"
+          : "${VPS_HOST_PORT:?VPS_HOST_PORT is required}"
+          : "${VPS_PORT:?VPS_PORT is required}"
+          : "${VPS_PROJECT_DIR:?VPS_PROJECT_DIR is required}"
+          : "${VPS_USER:?VPS_USER is required}"
+          remote_project_dir=$(printf '%q' "$VPS_PROJECT_DIR")
+          remote_host_port=$(printf '%q' "$VPS_HOST_PORT")
+          ssh -i "$RUNNER_TEMP/ssh/id_ed25519" \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
+            -p "$VPS_PORT" \
+            "$VPS_USER@$VPS_HOST" "VPS_PROJECT_DIR=$remote_project_dir VPS_HOST_PORT=$remote_host_port bash -s" <<'REMOTE'
+          set -euo pipefail
+          case "$VPS_PROJECT_DIR" in
+            /opt/*|/srv/*) ;;
+            *) echo "VPS_PROJECT_DIR must be under /opt or /srv" >&2; exit 1 ;;
+          esac
+          cd "$VPS_PROJECT_DIR"
+          docker image inspect junhaochou-knowledge-blog:rollback >/dev/null
+          docker image tag junhaochou-knowledge-blog:rollback junhaochou-knowledge-blog:latest
+          HOST_PORT="$VPS_HOST_PORT" docker compose up -d --force-recreate --no-build
+          curl -fsS --retry 3 --retry-connrefused "http://127.0.0.1:${VPS_HOST_PORT}/healthz/" | grep -Fq "healthy"
           REMOTE

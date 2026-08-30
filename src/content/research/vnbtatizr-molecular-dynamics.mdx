@@ -1,0 +1,39 @@
+---
+title: VNbTaTiZr 难熔高熵合金的分子动力学研究
+summary: 以可复核的原子尺度模拟流程研究 VNbTaTiZr 合金的拉伸响应、结构演化与微观变形机制。
+slug: vnbtatizr-molecular-dynamics
+domain: scientific-computing
+status: active
+questions:
+  [
+    势函数与模型假设如何影响拉伸模拟的可信度,
+    温度组分和应变率如何进入统一的比较框架,
+    位错孪晶与局部结构演化如何关联宏观力学响应,
+  ]
+methods: [势函数验证, 单轴拉伸模拟, 结构识别, 位错与孪晶分析]
+tools: [LAMMPS, OVITO, Python]
+tags: [VNbTaTiZr, 难熔高熵合金, 分子动力学, 微观机制]
+relatedProjects: [vnbtatizr-md]
+relatedArticles: [ansys-codex-workflow]
+disclosure: 本页仅公开研究问题、方法框架、工具与复现原则，不披露尚未公开的参数组合、应力应变曲线、定量结果或论文结论。
+featured: true
+order: 1
+draft: false
+updatedDate: 2026-08-30
+lastVerified: 2026-08-30
+---
+
+## 研究范围
+
+这一方向关注 VNbTaTiZr 难熔高熵合金在原子尺度拉伸过程中的结构响应。核心工作不是把单次模拟当作结论，而是建立一条能够说明模型、边界条件、加载方式和分析口径的证据链。
+
+## 方法框架
+
+1. 核对势函数适用范围，并用基础结构与力学量检查模型是否适合目标问题。
+2. 固定可比较的建模、平衡与加载流程，再研究温度、组分和应变率等变量。
+3. 结合局部结构识别、位错分析和孪晶观察解释应力响应，而不只报告单一强度指标。
+4. 保存输入脚本、随机种子、软件版本和后处理口径，使后续复核能够回到同一上下文。
+
+## 公开边界
+
+这里展示的是研究设计与可复现方法。具体数值、未发表图表、待验证机理和论文中的定量比较不在公开范围内；公开内容也不替代同行评议或独立复算。

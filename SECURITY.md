@@ -8,13 +8,13 @@ Giscus 与统计脚本可选启用；未配置时页面不加载相应第三方�
 
 ## 服务器基线
 
-仅通过 SSH 密钥访问服务器，关闭不必要的入站端口，Docker 站点端口只映射到 `127.0.0.1:8080`。宿主机 Nginx 负责 TLS，应用容器不保存源代码、`node_modules` 或可写数据。升级前记录镜像标签，保留上一版镜像和已验证配置以便回滚。
+仅通过 SSH 密钥访问服务器，关闭不必要的入站端口，Docker 站点端口只映射到回环地址；Compose 默认是 `127.0.0.1:8080`，当前共享生产主机和本地 smoke 显式使用 `HOST_PORT=8081`。宿主机 Nginx 负责 TLS，应用容器不保存源代码、`node_modules` 或可写数据；`.dockerignore` 还会阻止 `.git`、本地 `.env`、缓存和测试产物进入构建上下文。升级前记录镜像 revision label，并保留上一版运行镜像的 `rollback` 标签和已验证配置。
 
 优先使用独立的部署用户和 SSH 密钥，不使用密码认证或个人日常私钥。GitHub 仅保存部署所需的 Actions secrets；VPS 访问私有仓库时使用最小权限、只读的 Deploy Key。为 GitHub 管理员账号开启双因素认证，并定期复核仓库写入权限和 Deploy Key。
 
 ## 缓存与 Docker 维护
 
-`/admin/` 的浏览器和边缘缓存必须禁用；HTML 不得设置 30 天缓存。缓存策略由 Docker Nginx 统一发出，宿主 Nginx 不应覆盖它。Cloudflare 仅能按 [docs/cache-policy.md](docs/cache-policy.md) 中的人工 Cache Rules 配置，后台优先 Bypass Cache。
+`/admin/` 的浏览器和边缘缓存必须禁用；HTML 不得设置 30 天缓存。Docker Nginx 同时为 `/admin` 与 `/admin/` 返回 no-store 和 `X-Robots-Tag`，隐藏 Nginx 版本，并在所有响应保留 MIME sniffing、frame、referrer 与 permissions 安全头。缓存策略由 Docker Nginx 统一发出，宿主 Nginx 不应覆盖它。Cloudflare 仅能按 [docs/cache-policy.md](docs/cache-policy.md) 中的人工 Cache Rules 配置，后台优先 Bypass Cache。
 
 磁盘维护只允许检查 `docker system df`，以及在管理员确认后清理超过 30 天的 builder cache。禁止使用 `docker system prune -a`、`docker volume prune`、`docker image prune -a`，也不得用缓存维护操作删除容器、镜像、卷、Git 数据、文章、图片或项目目录。
 

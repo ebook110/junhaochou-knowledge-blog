@@ -5,53 +5,100 @@ import Footer from "../components/Footer.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { site } from "../data/site";
 
+type PagefindType = "article" | "research" | "project";
+
+interface PagefindConfig {
+  type: PagefindType;
+  domain?: string;
+  tags?: string[];
+  series?: string;
+}
+
 interface Props {
   title?: string;
   description?: string;
   canonical?: string;
   image?: string;
-  jsonLd?: object;
+  imageAlt?: string;
+  ogType?: "website" | "article" | "profile";
+  jsonLd?: object | object[];
+  pagefind?: PagefindConfig;
+  robots?: string;
 }
+
 const {
   title = site.title,
   description = site.description,
   canonical,
   image = "/images/covers/hero-engineering.webp",
+  imageAlt = "JunhaoChou 材料研究、计算方法与工程实践知识库",
+  ogType = "website",
   jsonLd,
+  pagefind,
+  robots,
 } = Astro.props;
 const pageTitle = title === site.title ? title : `${title} | ${site.name}`;
 const url = canonical ?? new URL(Astro.url.pathname, site.url).toString();
 const imageUrl = new URL(image, site.url).toString();
+const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const serializedSchemas = schemas.map((schema) =>
+  JSON.stringify(schema).replaceAll("<", "\\u003c"),
+);
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-pagefind-ignore={pagefind ? undefined : "all"}>
   <head>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width" />
-    <title>{pageTitle}</title><meta name="description" content={description} /><link
-      rel="canonical"
-      href={url}
-    />
-    <meta property="og:type" content="website" /><meta
-      property="og:site_name"
-      content={site.name}
-    /><meta property="og:title" content={pageTitle} /><meta
-      property="og:description"
-      content={description}
-    /><meta property="og:url" content={url} />
-    <meta property="og:image" content={imageUrl} /><meta
-      property="og:image:alt"
-      content="JunhaoChou 技术知识库工程抽象图"
-    />
-    <meta name="twitter:card" content="summary_large_image" /><meta
-      name="twitter:title"
-      content={pageTitle}
-    /><meta name="twitter:description" content={description} />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c1016" media="(prefers-color-scheme: dark)" />
+    {robots && <meta name="robots" content={robots} />}
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
     <link rel="alternate" type="application/rss+xml" title={`${site.name} RSS`} href="/rss.xml" />
+    {
+      pagefind && (
+        <>
+          <meta data-pagefind-meta="title" content={title} />
+          <meta data-pagefind-meta="description" content={description} />
+          <meta data-pagefind-meta="type" content={pagefind.type} />
+          <meta data-pagefind-meta="image" content={image} />
+          <meta data-pagefind-filter="type" content={pagefind.type} />
+          {pagefind.domain && (
+            <>
+              <meta data-pagefind-meta="domain" content={pagefind.domain} />
+              <meta data-pagefind-filter="domain" content={pagefind.domain} />
+            </>
+          )}
+          {pagefind.series && <meta data-pagefind-filter="series" content={pagefind.series} />}
+          {pagefind.tags?.map((tag) => (
+            <meta data-pagefind-filter="tag" content={tag} />
+          ))}
+          {pagefind.tags?.length && (
+            <meta data-pagefind-meta="tags" content={pagefind.tags.join("、")} />
+          )}
+        </>
+      )
+    }
     {
       import.meta.env.PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN && (
         <script
+          is:inline
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon={JSON.stringify({
@@ -63,6 +110,7 @@ const imageUrl = new URL(image, site.url).toString();
     {
       import.meta.env.PUBLIC_UMAMI_SRC && import.meta.env.PUBLIC_UMAMI_WEBSITE_ID && (
         <script
+          is:inline
           defer
           src={import.meta.env.PUBLIC_UMAMI_SRC}
           data-website-id={import.meta.env.PUBLIC_UMAMI_WEBSITE_ID}
@@ -70,11 +118,37 @@ const imageUrl = new URL(image, site.url).toString();
       )
     }
     <script is:inline>
-      const saved = localStorage.getItem("junhao-theme");
-      if (saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches)
-        document.documentElement.classList.add("dark");
+      (() => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem("junhao-theme");
+        } catch {}
+        const dark = saved
+          ? saved === "dark"
+          : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      })();
     </script>
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {
+      serializedSchemas.map((schema) => (
+        <script is:inline type="application/ld+json" set:html={schema} />
+      ))
+    }
   </head>
-  <body><Header /><main><slot /></main><Footer /><SearchModal /></body>
+  <body>
+    <!--
+      THESIS: A research index, not a generic SaaS hero or a grid of interchangeable icon cards.
+      OWN-WORLD: Cool paper-like surfaces, near-black type, hairline rules, small corners, and one cobalt route marker.
+      STORY: Recognize JunhaoChou's materials-and-computation practice, inspect the methods, then enter research, projects, or articles.
+      FIRST VIEWPORT: Compact navigation above a 52/48 statement-and-method matrix; two actions sit below the statement and a tensile profile anchors the next fold.
+      FORM: Approved Research Index Sheet, first grounded direction, seed cd50028b.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <Header />
+    <main id="main-content"><slot /></main>
+    <Footer />
+    <SearchModal />
+  </body>
 </html>

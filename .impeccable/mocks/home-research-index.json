@@ -1,0 +1,8 @@
+{
+  "title": "Research Index Sheet",
+  "path": ".impeccable/mocks/home-research-index.png",
+  "prompt": "High-fidelity 1440x1000 homepage UI comp for JunhaoChou. Scientific Editorial x Engineering Knowledge Base x Restrained Bento. Slim Chinese navigation; split first viewport with the exact headline 材料研究、计算方法与工程实践, supporting copy, 进入研究 and 查看项目 actions, and a compact research-method matrix; a thin tensile-specimen divider; unequal project modules; four knowledge-domain rows; latest articles. Cool off-white, near-black, muted blue-gray, one cobalt accent, precise rules, small corners, minimal shadows, system Chinese sans. No portrait, photo, hero raster, gradient text, neon, glass, fake metrics, equal icon cards, or watermark.",
+  "approved": true,
+  "approval": "Delegated by the user through the confirmed no-pause implementation brief; selected because it best preserves research identification, product clarity, explicit primary actions, and a reusable reading system.",
+  "generatedWith": "OpenAI built-in image generation"
+}

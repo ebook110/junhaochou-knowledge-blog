@@ -1,0 +1,24 @@
+---
+interface Props {
+  pagefindBody?: boolean;
+}
+
+const { pagefindBody = false } = Astro.props;
+---
+
+<div
+  class="article-layout grid items-start gap-6 xl:grid-cols-[160px_minmax(0,736px)_220px] xl:justify-between"
+>
+  <aside class="article-context hidden xl:block" aria-label="文章上下文">
+    <div class="sticky top-24"><slot name="context" /></div>
+  </aside>
+  <article
+    class="article-main mx-auto min-w-0 w-full max-w-[736px]"
+    data-pagefind-body={pagefindBody ? true : undefined}
+  >
+    <slot />
+  </article>
+  <aside class="article-toc hidden xl:block" aria-label="本页辅助导航">
+    <div class="sticky top-24"><slot name="aside" /></div>
+  </aside>
+</div>

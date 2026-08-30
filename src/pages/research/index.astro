@@ -1,0 +1,52 @@
+---
+import ResearchCard from "../../components/ResearchCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { site } from "../../data/site";
+import { getPublishedResearch } from "../../utils/content";
+
+const entries = await getPublishedResearch();
+const collectionUrl = new URL("/research/", site.url).toString();
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "研究方向",
+    description: "JunhaoChou 的材料研究问题、计算方法、工具与公开边界。",
+    url: collectionUrl,
+    hasPart: entries.map((entry) => ({
+      "@type": "ScholarlyArticle",
+      name: entry.data.title,
+      url: new URL(`/research/${entry.data.slug}/`, site.url).toString(),
+    })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: site.url },
+      { "@type": "ListItem", position: 2, name: "研究", item: collectionUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="研究"
+  description="了解 JunhaoChou 的材料研究问题、计算方法、工具与公开边界。"
+  jsonLd={jsonLd}
+>
+  <div class="container py-12 lg:py-16">
+    <header class="max-w-3xl border-b border-[var(--site-line)] pb-8">
+      <p class="subtle">Research directions</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight text-[var(--site-ink)] sm:text-4xl">
+        研究方向
+      </h1>
+      <p class="mt-5 text-base leading-8 text-[var(--site-muted)]">
+        公开研究问题、方法链与复现原则，不以尚未发表的数字或图表替代证据。
+      </p>
+    </header>
+    <section class="mt-8 grid gap-5 lg:grid-cols-2" aria-label="研究方向列表">
+      {entries.map((entry) => <ResearchCard entry={entry} />)}
+    </section>
+  </div>
+</BaseLayout>

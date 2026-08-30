@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-30T06:41:54Z",
+  "title": "Design System: JunhaoChou Knowledge Blog",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "冷纸白 / 深蓝黑画布",
+        "canonical": "var(--site-canvas)",
+        "tonalRamp": [
+          "oklch(15% 0.012 255)",
+          "oklch(27% 0.012 255)",
+          "oklch(39% 0.012 255)",
+          "oklch(51% 0.012 255)",
+          "oklch(63% 0.012 255)",
+          "oklch(75% 0.012 255)",
+          "oklch(87% 0.012 255)",
+          "oklch(95% 0.012 255)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "白纸 / 蓝黑纸面",
+        "canonical": "var(--site-surface)",
+        "tonalRamp": [
+          "oklch(15% 0.018 255)",
+          "oklch(27% 0.018 255)",
+          "oklch(39% 0.018 255)",
+          "oklch(51% 0.018 255)",
+          "oklch(63% 0.018 255)",
+          "oklch(75% 0.018 255)",
+          "oklch(87% 0.018 255)",
+          "oklch(95% 0.018 255)"
+        ]
+      },
+      "surface-muted": {
+        "role": "neutral",
+        "displayName": "雾化纸面",
+        "canonical": "var(--site-surface-muted)",
+        "tonalRamp": [
+          "oklch(15% 0.022 255)",
+          "oklch(27% 0.022 255)",
+          "oklch(39% 0.022 255)",
+          "oklch(51% 0.022 255)",
+          "oklch(63% 0.022 255)",
+          "oklch(75% 0.022 255)",
+          "oklch(87% 0.022 255)",
+          "oklch(95% 0.022 255)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "近黑墨 / 冷纸白墨",
+        "canonical": "var(--site-ink)",
+        "tonalRamp": [
+          "oklch(15% 0.025 260)",
+          "oklch(27% 0.025 260)",
+          "oklch(39% 0.025 260)",
+          "oklch(51% 0.025 260)",
+          "oklch(63% 0.025 260)",
+          "oklch(75% 0.025 260)",
+          "oklch(87% 0.025 260)",
+          "oklch(95% 0.025 260)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "石墨正文",
+        "canonical": "var(--site-ink-soft)",
+        "tonalRamp": [
+          "oklch(15% 0.024 258)",
+          "oklch(27% 0.024 258)",
+          "oklch(39% 0.024 258)",
+          "oklch(51% 0.024 258)",
+          "oklch(63% 0.024 258)",
+          "oklch(75% 0.024 258)",
+          "oklch(87% 0.024 258)",
+          "oklch(95% 0.024 258)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "蓝灰注释",
+        "canonical": "var(--site-muted)",
+        "tonalRamp": [
+          "oklch(15% 0.028 255)",
+          "oklch(27% 0.028 255)",
+          "oklch(39% 0.028 255)",
+          "oklch(51% 0.028 255)",
+          "oklch(63% 0.028 255)",
+          "oklch(75% 0.028 255)",
+          "oklch(87% 0.028 255)",
+          "oklch(95% 0.028 255)"
+        ]
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "淡钢灰标注",
+        "canonical": "var(--site-faint)",
+        "tonalRamp": [
+          "oklch(15% 0.024 255)",
+          "oklch(27% 0.024 255)",
+          "oklch(39% 0.024 255)",
+          "oklch(51% 0.024 255)",
+          "oklch(63% 0.024 255)",
+          "oklch(75% 0.024 255)",
+          "oklch(87% 0.024 255)",
+          "oklch(95% 0.024 255)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "蓝灰发丝线",
+        "canonical": "var(--site-line)",
+        "tonalRamp": [
+          "oklch(15% 0.018 255)",
+          "oklch(27% 0.018 255)",
+          "oklch(39% 0.018 255)",
+          "oklch(51% 0.018 255)",
+          "oklch(63% 0.018 255)",
+          "oklch(75% 0.018 255)",
+          "oklch(87% 0.018 255)",
+          "oklch(95% 0.018 255)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "强化蓝灰线",
+        "canonical": "var(--site-line-strong)",
+        "tonalRamp": [
+          "oklch(15% 0.026 255)",
+          "oklch(27% 0.026 255)",
+          "oklch(39% 0.026 255)",
+          "oklch(51% 0.026 255)",
+          "oklch(63% 0.026 255)",
+          "oklch(75% 0.026 255)",
+          "oklch(87% 0.026 255)",
+          "oklch(95% 0.026 255)"
+        ]
+      },
+      "cobalt": {
+        "role": "primary",
+        "displayName": "钴蓝路线标记",
+        "canonical": "var(--site-cobalt)",
+        "tonalRamp": [
+          "oklch(15% 0.16 255)",
+          "oklch(27% 0.16 255)",
+          "oklch(39% 0.16 255)",
+          "oklch(51% 0.16 255)",
+          "oklch(63% 0.16 255)",
+          "oklch(75% 0.16 255)",
+          "oklch(87% 0.16 255)",
+          "oklch(95% 0.16 255)"
+        ]
+      },
+      "cobalt-strong": {
+        "role": "primary",
+        "displayName": "深钴蓝路线标记",
+        "canonical": "var(--site-cobalt-strong)",
+        "tonalRamp": [
+          "oklch(15% 0.19 255)",
+          "oklch(27% 0.19 255)",
+          "oklch(39% 0.19 255)",
+          "oklch(51% 0.19 255)",
+          "oklch(63% 0.19 255)",
+          "oklch(75% 0.19 255)",
+          "oklch(87% 0.19 255)",
+          "oklch(95% 0.19 255)"
+        ]
+      },
+      "cobalt-soft": {
+        "role": "primary",
+        "displayName": "钴蓝淡洗",
+        "canonical": "var(--site-cobalt-soft)",
+        "tonalRamp": [
+          "oklch(15% 0.065 255)",
+          "oklch(27% 0.065 255)",
+          "oklch(39% 0.065 255)",
+          "oklch(51% 0.065 255)",
+          "oklch(63% 0.065 255)",
+          "oklch(75% 0.065 255)",
+          "oklch(87% 0.065 255)",
+          "oklch(95% 0.065 255)"
+        ]
+      },
+      "header": {
+        "role": "neutral",
+        "displayName": "索引页眉纸面",
+        "canonical": "var(--site-header)",
+        "tonalRamp": [
+          "oklch(15% 0.01 255)",
+          "oklch(27% 0.01 255)",
+          "oklch(39% 0.01 255)",
+          "oklch(51% 0.01 255)",
+          "oklch(63% 0.01 255)",
+          "oklch(75% 0.01 255)",
+          "oklch(87% 0.01 255)",
+          "oklch(95% 0.01 255)"
+        ]
+      },
+      "code": {
+        "role": "neutral",
+        "displayName": "深蓝黑代码面",
+        "canonical": "var(--site-code)",
+        "tonalRamp": [
+          "oklch(15% 0.03 255)",
+          "oklch(27% 0.03 255)",
+          "oklch(39% 0.03 255)",
+          "oklch(51% 0.03 255)",
+          "oklch(63% 0.03 255)",
+          "oklch(75% 0.03 255)",
+          "oklch(87% 0.03 255)",
+          "oklch(95% 0.03 255)"
+        ]
+      },
+      "white-on-cobalt": {
+        "role": "neutral",
+        "displayName": "钴蓝上的白字",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(39% 0 0)",
+          "oklch(51% 0 0)",
+          "oklch(63% 0 0)",
+          "oklch(75% 0 0)",
+          "oklch(87% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "主陈述", "purpose": "首页和文章的短而直接主标题。" },
+      "headline": { "displayName": "章节标题", "purpose": "主要索引分区与内容章节。" },
+      "title": { "displayName": "内容标题", "purpose": "项目卡片与内容单元标题。" },
+      "body": { "displayName": "技术正文", "purpose": "约 75ch 阅读宽度的长文。" },
+      "label": { "displayName": "元数据标签", "purpose": "状态、分类和控件标签。" },
+      "mono": { "displayName": "工程标注", "purpose": "方法、日期、图注与工程数据。" }
+    },
+    "shadows": [
+      {
+        "name": "floating-toc",
+        "value": "0 12px 28px rgb(15 23 42 / 14%)",
+        "purpose": "仅用于移动端固定目录入口。"
+      },
+      {
+        "name": "modal-sheet",
+        "value": "0 24px 60px rgb(7 13 24 / 30%)",
+        "purpose": "仅用于模态对话框纸面。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-quick",
+        "value": "160ms ease",
+        "purpose": "按钮、边框、颜色和纸面状态切换。"
+      },
+      { "name": "route-marker", "value": "180ms ease", "purpose": "桌面导航激活线的横向显现。" },
+      {
+        "name": "specimen-trace",
+        "value": "760ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "拉伸试样轮廓的单次描线入场；减弱动画时停用。"
+      }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "430px" },
+      { "name": "section-label", "value": "560px" },
+      { "name": "mobile-content", "value": "639px" },
+      { "name": "two-column", "value": "768px" },
+      { "name": "desktop-navigation", "value": "900px" },
+      { "name": "hero-split", "value": "1024px" },
+      { "name": "project-ledger", "value": "1120px" },
+      { "name": "wide-search", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "进入研究等唯一主路径动作。",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">进入研究 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-btn-primary { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid #1556c0; border-radius: var(--site-radius, 4px); background: #1556c0; padding: 0 1.15rem; color: #fff; font: 680 0.875rem/1.2 var(--font-sans, sans-serif); text-decoration: none; transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease; } .ds-btn-primary svg { width: 1rem; height: 1rem; } .ds-btn-primary:hover { border-color: #0e459f; background: #0e459f; } .ds-btn-primary:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "并列但非主导的项目或归档入口。",
+      "html": "<a class=\"ds-btn-secondary\" href=\"#\">查看项目</a>",
+      "css": ".ds-btn-secondary { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; border: 1px solid var(--site-line-strong, #a3afc0); border-radius: var(--site-radius, 4px); background: var(--site-surface, #fff); padding: 0 1.15rem; color: var(--site-ink-soft, #344054); font: 680 0.875rem/1.2 var(--font-sans, sans-serif); text-decoration: none; transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease; } .ds-btn-secondary:hover { border-color: var(--site-cobalt, #1556c0); color: var(--site-cobalt, #1556c0); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Index Navigation",
+      "kind": "nav",
+      "description": "文字导航以底部钴蓝短线显示当前路径。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"示例导航\"><a class=\"ds-nav-link ds-is-active\" href=\"#\" aria-current=\"page\">研究</a><a class=\"ds-nav-link\" href=\"#\">项目</a><a class=\"ds-nav-link\" href=\"#\">文章</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: stretch; gap: 0.25rem; border-bottom: 1px solid var(--site-line, #d9e0ea); background: var(--site-header, #fbfcfe); } .ds-nav-link { position: relative; display: inline-flex; min-height: 44px; align-items: center; padding: 0 0.85rem; color: var(--site-muted, #596579); font: 560 0.875rem/1.2 var(--font-sans, sans-serif); text-decoration: none; transition: color 160ms ease; } .ds-nav-link::after { position: absolute; right: 0.85rem; bottom: 0; left: 0.85rem; height: 2px; background: var(--site-cobalt, #1556c0); content: ''; scale: 0 1; transform-origin: left; transition: scale 180ms ease; } .ds-nav-link:hover, .ds-nav-link.ds-is-active { color: var(--site-ink, #111827); } .ds-nav-link.ds-is-active::after { scale: 1 1; } .ds-nav-link:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: -2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "带本地搜索提示和明确 focus-within 状态的静态索引输入。",
+      "html": "<form class=\"ds-search\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"m20 20-4-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg><label class=\"ds-search-label\" for=\"ds-search-input\">搜索关键词</label><input id=\"ds-search-input\" placeholder=\"搜索研究、项目、文章与标签\"/><button type=\"submit\">搜索</button></form>",
+      "css": ".ds-search { display: flex; min-height: 48px; align-items: center; border: 1px solid var(--site-line-strong, #a3afc0); border-radius: var(--site-radius, 4px); background: var(--site-surface, #fff); padding: 0.375rem; transition: border-color 160ms ease, box-shadow 160ms ease; } .ds-search:focus-within { border-color: var(--site-cobalt, #1556c0); box-shadow: 0 0 0 2px color-mix(in srgb, var(--site-cobalt, #1556c0) 20%, transparent); } .ds-search svg { width: 1.25rem; height: 1.25rem; margin: 0 0.5rem; color: var(--site-cobalt, #1556c0); } .ds-search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .ds-search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; padding: 0.5rem 0.25rem; color: var(--site-ink, #111827); font: 400 1rem/1.4 var(--font-sans, sans-serif); } .ds-search input::placeholder { color: var(--site-faint, #748197); } .ds-search button { min-height: 44px; border: 0; border-radius: var(--site-radius, 4px); background: var(--site-cobalt, #1556c0); padding: 0 1rem; color: #fff; font: 650 0.875rem/1.2 var(--font-sans, sans-serif); transition: background-color 160ms ease; } .ds-search button:hover { background: var(--site-cobalt-strong, #0e459f); } .ds-search button:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 2px; }"
+    },
+    {
+      "name": "Metadata Chip",
+      "kind": "chip",
+      "refersTo": "chip-metadata",
+      "description": "文章领域、标签和元数据的低强度胶囊。",
+      "html": "<a class=\"ds-meta-chip\" href=\"#\">科研计算</a>",
+      "css": ".ds-meta-chip { display: inline-flex; min-height: 32px; align-items: center; border: 1px solid var(--site-line, #d9e0ea); border-radius: 999px; background: var(--site-surface, #fff); padding: 0 0.7rem; color: var(--site-muted, #596579); font: 650 0.75rem/1.2 var(--font-sans, sans-serif); text-decoration: none; transition: border-color 160ms ease, color 160ms ease; } .ds-meta-chip:hover { border-color: var(--site-cobalt, #1556c0); color: var(--site-cobalt, #1556c0); } .ds-meta-chip:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Project Record Card",
+      "kind": "card",
+      "refersTo": "card-project",
+      "description": "把领域、方法、公开边界和维护状态收进同一份项目记录。",
+      "html": "<article class=\"ds-project-card\"><span class=\"ds-project-domain\">科研计算</span><h3><a href=\"#\">VNbTaTiZr 分子动力学研究</a></h3><p>记录势函数验证、拉伸模拟与结构演化分析。</p><ul><li>LAMMPS</li><li>位错分析</li><li>UTS</li></ul><div class=\"ds-project-footer\"><span class=\"ds-project-status\"><i></i>持续推进</span><a class=\"ds-project-link\" href=\"#\">查看记录 →</a></div></article>",
+      "css": ".ds-project-card { display: flex; min-height: 260px; flex-direction: column; border: 1px solid var(--site-line, #d9e0ea); border-radius: var(--site-radius, 4px); background: var(--site-surface, #fff); padding: clamp(1.2rem, 2.2vw, 1.75rem); color: var(--site-ink, #111827); font-family: var(--font-sans, sans-serif); transition: border-color 170ms ease, background-color 170ms ease; } .ds-project-card:hover { border-color: var(--site-line-strong, #a3afc0); background: color-mix(in srgb, var(--site-surface, #fff) 94%, var(--site-cobalt-soft, #e8effd)); } .ds-project-domain { border-bottom: 1px solid var(--site-line, #d9e0ea); padding-bottom: 0.8rem; color: var(--site-cobalt, #1556c0); font-size: 0.74rem; font-weight: 680; } .ds-project-card h3 { margin: 1.5rem 0 0; font-size: clamp(1.2rem, 2.2vw, 1.55rem); line-height: 1.35; letter-spacing: -0.025em; } .ds-project-card h3 a { color: inherit; text-decoration: none; } .ds-project-card h3 a:hover { color: var(--site-cobalt, #1556c0); } .ds-project-card h3 a:focus-visible, .ds-project-link:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 3px; } .ds-project-card p { margin: 0.85rem 0 0; color: var(--site-muted, #596579); font-size: 0.9rem; line-height: 1.75; } .ds-project-card ul { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.25rem 0 0; padding: 0; list-style: none; } .ds-project-card li { border: 1px solid var(--site-line, #d9e0ea); border-radius: var(--site-radius, 4px); padding: 0.3rem 0.45rem; color: var(--site-ink-soft, #344054); font: 400 0.68rem/1.2 var(--font-mono, monospace); } .ds-project-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: auto; padding-top: 1.5rem; } .ds-project-status { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--site-muted, #596579); font-size: 0.75rem; } .ds-project-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--site-cobalt, #1556c0); } .ds-project-link { color: var(--site-cobalt, #1556c0); font-size: 0.8rem; font-weight: 650; text-decoration: none; } .ds-project-link:hover { color: var(--site-cobalt-strong, #0e459f); }"
+    },
+    {
+      "name": "Method Matrix",
+      "kind": "custom",
+      "description": "用索引表格连接研究对象、建模、变量与响应。",
+      "html": "<section class=\"ds-matrix\"><header><h3>研究方法矩阵</h3><a href=\"#\">完整研究路径 ↗</a></header><table><thead><tr><th>研究对象</th><th>建立模型</th><th>控制变量</th><th>解释响应</th></tr></thead><tbody><tr><th>材料体系</th><td>VNbTaTiZr</td><td>温度 · 组分 · 应变率</td><td>结构演化</td></tr><tr><th>分子动力学</th><td>势函数验证</td><td>LAMMPS 拉伸</td><td>位错 · 孪晶</td></tr></tbody></table></section>",
+      "css": ".ds-matrix { color: var(--site-ink, #111827); font-family: var(--font-sans, sans-serif); } .ds-matrix header { display: flex; min-height: 52px; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--site-line-strong, #a3afc0); border-bottom: 1px solid var(--site-line, #d9e0ea); } .ds-matrix h3 { margin: 0; font-size: 0.92rem; font-weight: 680; } .ds-matrix header a { color: var(--site-cobalt, #1556c0); font-size: 0.78rem; font-weight: 640; text-decoration: none; } .ds-matrix header a:hover { color: var(--site-cobalt-strong, #0e459f); } .ds-matrix header a:focus-visible { outline: 2px solid var(--site-cobalt, #1556c0); outline-offset: 3px; } .ds-matrix table { width: 100%; border-collapse: collapse; table-layout: fixed; } .ds-matrix th, .ds-matrix td { border-right: 1px solid var(--site-line, #d9e0ea); border-bottom: 1px solid var(--site-line, #d9e0ea); padding: 0.85rem 0.75rem; text-align: left; vertical-align: top; } .ds-matrix th:last-child, .ds-matrix td:last-child { border-right: 0; } .ds-matrix thead th { color: var(--site-faint, #748197); font-size: 0.68rem; font-weight: 650; letter-spacing: 0.06em; } .ds-matrix tbody th { color: var(--site-ink-soft, #344054); font-size: 0.76rem; font-weight: 650; line-height: 1.55; } .ds-matrix td { color: var(--site-muted, #596579); font: 400 0.7rem/1.55 var(--font-mono, monospace); overflow-wrap: anywhere; }"
+    },
+    {
+      "name": "Tensile Specimen",
+      "kind": "custom",
+      "description": "材料研究语境中的签名测量图示。",
+      "html": "<div class=\"ds-specimen\" aria-hidden=\"true\"><svg viewBox=\"0 0 1200 104\"><line class=\"ds-centerline\" x1=\"14\" y1=\"52\" x2=\"1186\" y2=\"52\"/><path class=\"ds-profile\" pathLength=\"1\" d=\"M18 42H166C190 42 202 30 226 30H974C998 30 1010 42 1034 42H1182V62H1034C1010 62 998 74 974 74H226C202 74 190 62 166 62H18Z\"/><line class=\"ds-measure\" x1=\"226\" y1=\"17\" x2=\"974\" y2=\"17\"/><text x=\"600\" y=\"13\" text-anchor=\"middle\">L₀</text><text x=\"18\" y=\"94\">TENSILE SPECIMEN / METHOD CONTINUUM</text><text x=\"1182\" y=\"94\" text-anchor=\"end\">VNbTaTiZr</text></svg></div>",
+      "css": ".ds-specimen { overflow: hidden; border-block: 1px solid var(--site-line, #d9e0ea); color: var(--site-line-strong, #a3afc0); } .ds-specimen svg { display: block; width: 100%; height: auto; max-height: 104px; } .ds-specimen line, .ds-specimen path { vector-effect: non-scaling-stroke; } .ds-centerline { stroke: var(--site-line, #d9e0ea); stroke-dasharray: 4 5; } .ds-profile { fill: none; stroke: var(--site-cobalt, #1556c0); stroke-width: 1.25; stroke-dasharray: 1; animation: ds-specimen-trace 760ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-measure { stroke: var(--site-line-strong, #a3afc0); stroke-width: 1; } .ds-specimen text { fill: var(--site-faint, #748197); font: 400 8px/1 var(--font-mono, monospace); letter-spacing: 0.08em; } @keyframes ds-specimen-trace { from { opacity: 0.72; stroke-dashoffset: 0.12; } to { opacity: 1; stroke-dashoffset: 0; } } @media (prefers-reduced-motion: reduce) { .ds-profile { animation: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Research Index Sheet / 科研索引纸",
+    "overview": "这个系统把站点视为一张持续编订的科研索引纸：冷纸白或深蓝黑底面承载近黑墨/冷纸白正文，细线像表格与测量标记一样组织证据，钴蓝只标记路径、状态和可操作位置。整体语气冷静、精确、证据导向，带有科研编辑感，而不是营销落地页的戏剧性。\n\n信息密度来自清晰的标题层级、表格化分区、窄色阶和紧凑控件。材料拉伸试样轮廓、方法矩阵与账册式列表是这个视觉世界的原生表达；它们帮助读者理解研究路径，但单个页面的 52/48 首屏构图不是全站模板。",
+    "keyCharacteristics": [
+      "冷纸面与深蓝黑双主题共享同一组语义变量。",
+      "近黑墨承担阅读，钴蓝路线标记只承担导航与交互强调。",
+      "细线、低圆角和表格节奏替代装饰性卡片与常态阴影。",
+      "中文无衬线承担信息层级，等宽体仅标注方法、数据与工程语境。",
+      "44px 触控目标、明确焦点和减弱动画是系统固有约束。"
+    ],
+    "rules": [
+      {
+        "name": "The Route Marker Rule",
+        "body": "钴蓝只标记路径、状态、选择与可操作对象；它不铺成大面积装饰背景。",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Paper Rule",
+        "body": "新界面必须使用现有语义变量同时适配冷纸白与深蓝黑主题，不能为单一主题写孤立颜色。",
+        "section": "colors"
+      },
+      {
+        "name": "The Evidence Type Rule",
+        "body": "展示字号用于声明研究对象与文章主题；等宽体只用于证据标注、方法词和工程数据，不模拟终端界面。",
+        "section": "typography"
+      },
+      {
+        "name": "The Index Before Cards Rule",
+        "body": "当内容天然具有序列、分类或比较关系时，优先使用带发丝线的行、表或矩阵；只有需要独立边界与内部叙述时才使用卡片。",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "卡片、列表、表格和导航在静止状态下不使用阴影；色面与一像素边界负责结构。",
+        "section": "elevation"
+      },
+      {
+        "name": "The Small Corner Rule",
+        "body": "圆角严格限定为 4px / 8px / 12px；通用容器和数据标签默认 4px，胶囊只用于元数据。",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do 使用语义 CSS 变量，让同一组件在冷纸白与深蓝黑主题中保持等价层级。",
+      "Do 用一像素发丝线、短钴蓝激活线和克制色面表达结构与状态。",
+      "Do 保持至少 44px 交互目标、可见键盘焦点和 prefers-reduced-motion 降级。",
+      "Do 在方法、日期、图注和工程数据中使用等宽体，在长文中维持约 75ch 的阅读宽度。",
+      "Do 让矩阵、账册、测量图示和项目公开说明服务于证据链与可追溯性。"
+    ],
+    "donts": [
+      "Don't 把钴蓝扩展为大面积装饰色，或让多个强调色争夺路线标记角色。",
+      "Don't 为静态卡片、导航或列表添加常态阴影、玻璃模糊、霓虹光晕或硬偏移阴影。",
+      "Don't 用大圆角、通用胶囊按钮或可互换图标卡稀释科研索引纸的直线秩序。",
+      "Don't 把首页的 52/48 构图或拉伸试样图示误写成每个页面都必须复用的模板。",
+      "Don't 用等宽体制造终端 cosplay，也不要添加未经实现支持的错误色或装饰状态。"
+    ]
+  }
+}

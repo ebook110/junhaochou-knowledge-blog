@@ -1,0 +1,195 @@
+---
+import { ArrowUpRight } from "lucide-astro";
+
+interface ProjectView {
+  slug: string;
+  title: string;
+  summary: string;
+  status: "active" | "maintained" | "completed";
+  methods: string[];
+  tools: string[];
+  disclosure: string;
+}
+
+interface Props {
+  project: ProjectView;
+  domainLabel: string;
+  className?: string;
+}
+
+const { project, domainLabel, className } = Astro.props;
+const href = `/projects/${project.slug}/`;
+const statusLabels = {
+  active: "持续推进",
+  maintained: "持续维护",
+  completed: "阶段完成",
+} as const;
+const methodLabels = [...project.methods, ...project.tools].slice(0, 4);
+---
+
+<article class:list={["project-card", className]}>
+  <div class="project-card-topline">
+    <span class="project-domain">{domainLabel}</span>
+  </div>
+
+  <h3><a href={href}>{project.title}</a></h3>
+  <p class="project-description">{project.summary}</p>
+
+  <ul class="method-list" aria-label="项目方法与工具">
+    {methodLabels.map((method) => <li>{method}</li>)}
+  </ul>
+
+  <p class="project-disclosure">
+    <span>公开说明</span>
+    {project.disclosure}
+  </p>
+
+  <footer>
+    <span class={`status status-${project.status}`}>
+      <span aria-hidden="true"></span>
+      {statusLabels[project.status]}
+    </span>
+    <a class="project-link" href={href} aria-label={`查看项目：${project.title}`}>
+      查看记录
+      <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+    </a>
+  </footer>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+    flex-direction: column;
+    border: 1px solid var(--site-line);
+    border-radius: var(--site-radius);
+    background: var(--site-surface);
+    padding: clamp(1.2rem, 2.2vw, 1.75rem);
+    transition:
+      border-color 170ms ease,
+      background-color 170ms ease;
+  }
+
+  .project-card:hover {
+    border-color: var(--site-line-strong);
+    background: color-mix(in srgb, var(--site-surface) 94%, var(--site-cobalt-soft));
+  }
+
+  .project-card-topline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--site-line);
+    padding-bottom: 0.8rem;
+  }
+
+  .project-domain {
+    color: var(--site-cobalt);
+    font-size: 0.74rem;
+    font-weight: 680;
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    color: var(--site-ink);
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-weight: 680;
+    letter-spacing: -0.025em;
+    line-height: 1.35;
+  }
+
+  h3 a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h3 a:hover {
+    color: var(--site-cobalt);
+  }
+
+  .project-description {
+    margin-top: 0.85rem;
+    color: var(--site-muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+
+  .method-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+    list-style: none;
+  }
+
+  .method-list li {
+    border: 1px solid var(--site-line);
+    border-radius: var(--site-radius);
+    padding: 0.3rem 0.45rem;
+    color: var(--site-ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+
+  .project-disclosure {
+    margin-top: 1.15rem;
+    color: var(--site-faint);
+    font-size: 0.76rem;
+    line-height: 1.65;
+  }
+
+  .project-disclosure span {
+    margin-right: 0.45rem;
+    color: var(--site-ink-soft);
+    font-weight: 650;
+  }
+
+  footer {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--site-muted);
+    font-size: 0.75rem;
+  }
+
+  .status > span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--site-line-strong);
+  }
+
+  .status-active > span,
+  .status-maintained > span {
+    background: var(--site-cobalt);
+  }
+
+  .project-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--site-cobalt);
+    font-size: 0.8rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .project-link:hover {
+    color: var(--site-cobalt-strong);
+  }
+</style>

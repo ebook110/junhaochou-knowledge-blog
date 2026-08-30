@@ -1,0 +1,123 @@
+---
+import type { CategoryConfig, DomainConfig } from "../data/site";
+import type { Article } from "../utils/articles";
+import ArticleRow from "./ArticleRow.astro";
+
+interface Props {
+  domain: DomainConfig;
+  categories: CategoryConfig[];
+  articles: Article[];
+}
+
+const { domain, categories, articles } = Astro.props;
+const headingId = `${domain.slug}-articles-title`;
+---
+
+<section id={domain.slug} class="domain-article-section" aria-labelledby={headingId}>
+  <header class="domain-article-context">
+    <h2 id={headingId}>{domain.name}</h2>
+    <p class="domain-description">{domain.description}</p>
+    <p class="domain-methods">{domain.methods.join(" · ")}</p>
+    <nav class="domain-category-links" aria-label={`${domain.name}分类`}>
+      {categories.map((category) => <a href={`/categories/${category.slug}/`}>{category.name}</a>)}
+    </nav>
+  </header>
+
+  <div class="domain-article-list">
+    {
+      articles.length > 0 ? (
+        articles.map((article) => (
+          <ArticleRow
+            article={article.data}
+            category={categories.find((category) => category.slug === article.data.category)!}
+          />
+        ))
+      ) : (
+        <p class="domain-empty">该领域的公开文章正在整理，可先浏览相关分类。</p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .domain-article-section {
+    display: grid;
+    min-width: 0;
+    gap: 1.5rem;
+    scroll-margin-top: 6rem;
+    border-top: 1px solid var(--site-line-strong);
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .domain-article-context {
+    min-width: 0;
+  }
+
+  h2 {
+    color: var(--site-ink);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 690;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  .domain-description {
+    max-width: 34rem;
+    margin-top: 0.65rem;
+    color: var(--site-muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .domain-methods {
+    max-width: 34rem;
+    margin-top: 1rem;
+    color: var(--site-faint);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1.7;
+  }
+
+  .domain-category-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin-top: 0.6rem;
+  }
+
+  .domain-category-links a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--site-ink-soft);
+    font-size: 0.78rem;
+    font-weight: 620;
+    text-decoration: underline;
+    text-decoration-color: var(--site-line-strong);
+    text-underline-offset: 0.25rem;
+  }
+
+  .domain-category-links a:hover {
+    color: var(--site-cobalt);
+    text-decoration-color: var(--site-cobalt);
+  }
+
+  .domain-article-list {
+    min-width: 0;
+  }
+
+  .domain-empty {
+    border-block: 1px solid var(--site-line);
+    padding-block: 1.4rem;
+    color: var(--site-muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  @media (min-width: 980px) {
+    .domain-article-section {
+      grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.8fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
+    }
+  }
+</style>

@@ -1,37 +1,134 @@
 ---
 import { Github, Mail, Rss } from "lucide-astro";
-import { site } from "../data/site";
+import { navigation, site } from "../data/site";
+
+const year = new Date().getFullYear();
 ---
 
-<footer class="mt-16 border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
-  <div class="container grid gap-8 py-10 sm:grid-cols-[1fr_auto]">
-    <div>
-      <p class="font-semibold text-slate-950 dark:text-white">{site.name}</p><p
-        class="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400"
-      >
-        {site.description}
-      </p><p class="mt-4 text-xs text-slate-500">
-        内容以 Git 管理；请以合法、合规和可验证的方式使用技术信息。
-      </p>
+<footer class="site-footer">
+  <div class="container footer-main">
+    <div class="footer-identity">
+      <p class="footer-wordmark">{site.name}</p>
+      <p class="footer-description">{site.description}</p>
     </div>
-    <div class="flex items-start gap-3" aria-label="联系链接">
-      <a
-        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-        href={site.github}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="GitHub"><Github class="h-4 w-4" /></a
-      >
-      <a
-        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-        href={`mailto:${site.email}`}
-        aria-label="邮箱"><Mail class="h-4 w-4" /></a
-      >
-      <a
-        class="grid h-9 w-9 place-items-center border border-slate-200 text-slate-600 hover:text-blue-600 dark:border-slate-700 dark:text-slate-300"
-        href="/rss.xml"
-        aria-label="RSS"><Rss class="h-4 w-4" /></a
-      >
+
+    <nav class="footer-navigation" aria-label="页脚导航">
+      {navigation.slice(1).map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+
+    <div class="footer-links" aria-label="联系与订阅">
+      <a href={site.github} target="_blank" rel="noreferrer" aria-label="访问 GitHub">
+        <Github class="h-4 w-4" aria-hidden="true" />
+      </a>
+      <a href={`mailto:${site.email}`} aria-label="发送邮件">
+        <Mail class="h-4 w-4" aria-hidden="true" />
+      </a>
+      <a href="/rss.xml" aria-label="订阅 RSS">
+        <Rss class="h-4 w-4" aria-hidden="true" />
+      </a>
     </div>
   </div>
+
+  <div class="container footer-meta">
+    <p>© {year} {site.name}</p>
+    <p>内容由 Git 管理 · 静态构建 · 持续复核</p>
+  </div>
 </footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(5rem, 9vw, 8.5rem);
+    border-top: 1px solid var(--site-line);
+    background: var(--site-canvas);
+  }
+
+  .footer-main {
+    display: grid;
+    gap: 1.75rem;
+    align-items: start;
+    padding-block: 2rem;
+  }
+
+  .footer-identity {
+    max-width: 34rem;
+  }
+
+  .footer-wordmark {
+    color: var(--site-ink);
+    font-size: 1rem;
+    font-weight: 740;
+    letter-spacing: -0.025em;
+  }
+
+  .footer-description {
+    margin-top: 0.5rem;
+    color: var(--site-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .footer-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+
+  .footer-navigation a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--site-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .footer-navigation a:hover {
+    color: var(--site-cobalt);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .footer-links a {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid var(--site-line);
+    border-radius: var(--site-radius);
+    background: var(--site-surface);
+    color: var(--site-muted);
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .footer-links a:hover {
+    border-color: var(--site-cobalt);
+    background: var(--site-cobalt-soft);
+    color: var(--site-cobalt);
+  }
+
+  .footer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    border-top: 1px solid var(--site-line);
+    padding-block: 1rem 1.4rem;
+    color: var(--site-faint);
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 768px) {
+    .footer-main {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      padding-block: 2.4rem;
+    }
+  }
+</style>

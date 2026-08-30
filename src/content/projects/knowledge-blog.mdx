@@ -1,0 +1,35 @@
+---
+title: JunhaoChou 工程知识库
+summary: 以 Astro、Git、静态搜索和可回滚部署构建兼顾长期阅读与内容维护的个人知识系统。
+slug: knowledge-blog
+domain: engineering-automation
+status: maintained
+role: 产品设计、前端实现、内容建模与部署运维
+methods: [类型化内容, 静态构建, 自动验证, 可回滚部署]
+tools: [Astro, TypeScript, Pagefind, GitHub Actions, Docker, Nginx, Cloudflare]
+tags: [Astro, 知识库, 静态站点, 工程自动化]
+relatedResearch: []
+relatedArticles: [knowledge-base-method, tools-reliable-resources, docker-sub2api]
+repository: https://github.com/ebook110/junhaochou-knowledge-blog
+disclosure: 项目公开站点架构、内容模型和运维方法，但不公开访问凭据、OAuth 密钥、服务器地址、未发布内容或其他敏感配置。
+featured: true
+order: 3
+draft: false
+updatedDate: 2026-08-30
+lastVerified: 2026-08-30
+---
+
+## 项目目标
+
+把个人网站做成可长期维护的工程知识库：读者能够区分研究方向、项目记录和技术文章，作者则可以通过 Git 或受保护的编辑入口持续更新内容。
+
+## 系统结构
+
+- Astro 与 Content Collections 负责类型化内容和静态页面生成。
+- Pagefind 在构建阶段生成本地搜索索引，不依赖运行时数据库。
+- Decap CMS 作为 Git 编辑界面，由 Cloudflare Access 和独立 OAuth 流程保护。
+- GitHub Actions 验证变更，Docker/Nginx 在受控 VPS 上提供静态文件与健康检查。
+
+## 工程原则
+
+项目保留公开 URL、Git 历史与可回滚发布路径。内容和配置接受自动校验，真实凭据只存在于对应平台的受控环境中，不进入仓库。

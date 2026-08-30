@@ -49,6 +49,16 @@ Cloudflare 的 **Browser TTL** 告诉访问者浏览器可保留响应多久；*
 
 ## 验证
 
+本地或 CI 的生产等价容器使用独立端口并运行自动契约检查：
+
+```bash
+HOST_PORT=8081 docker compose up --build -d --wait
+node scripts/check-container.mjs http://127.0.0.1:8081/
+HOST_PORT=8081 docker compose down
+```
+
+该脚本同时检查 HTML、Pagefind、哈希静态资源与 `/admin/` 的实际 Nginx 响应头，确认后台 meta robots、`X-Robots-Tag`、本地 bundle、配置 MIME、no-store、robots.txt 和通用安全头。Compose 不设置 `HOST_PORT` 时仍默认使用 `8080`。
+
 部署后从已完成 Cloudflare Access 的会话检查后台；未授权 `curl -I /admin/` 返回 Access 登录重定向是预期行为。其他路径可用：
 
 ```bash

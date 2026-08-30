@@ -7,10 +7,12 @@
 ```bash
 git clone <your-repository-url> app
 cd app
-docker compose build
+BUILD_REVISION="$(git rev-parse HEAD)" docker compose build
 HOST_PORT=8081 docker compose up -d
 curl -fsS http://127.0.0.1:8081/healthz/
 ```
+
+Compose 的安全默认值仍是仅回环绑定的 `127.0.0.1:8080`。本地生产等价检查与当前共享生产主机显式使用 `HOST_PORT=8081`；不要为了迁就测试而改变 Compose 默认端口，也不要映射到 `0.0.0.0`。
 
 ## 2. 配置宿主机 Nginx 与 HTTPS
 
@@ -24,7 +26,18 @@ curl -fsS http://127.0.0.1:8081/healthz/
 
 ## 4. 更新与回滚
 
-更新前执行 `git status`、`git pull --ff-only`、`docker compose build`；启动后检查 `/healthz/` 和首页。保留上一个镜像标签：若出现问题，将 Git 工作树回到上一个已验证提交（使用非破坏性的分支或 `git revert`），重新构建并 `docker compose up -d`。不要通过删除卷或执行批量删除来处理构建异常。
+更新前执行 `git status`、`git pull --ff-only`、`BUILD_REVISION="$(git rev-parse HEAD)" docker compose build`；启动后检查 `/healthz/` 和首页。自动部署会在构建前把当前运行容器的镜像保存为 `junhaochou-knowledge-blog:rollback`，并把已验证 Git SHA 写入新镜像的 OCI revision label。
+
+正常回滚仍应在 GitHub 创建 `git revert`，让回滚提交重新经过完整 CI。只有站点已经不可用、来不及等待重建时，才临时恢复上一镜像：
+
+```bash
+docker image inspect junhaochou-knowledge-blog:rollback
+docker image tag junhaochou-knowledge-blog:rollback junhaochou-knowledge-blog:latest
+HOST_PORT=8081 docker compose up -d --no-build --force-recreate
+curl -fsS http://127.0.0.1:8081/healthz/
+```
+
+镜像回滚不会改写 Git 历史，也不会删除卷、镜像或目录；恢复服务后仍须立即提交并发布正式的 Git revert，使源码与运行镜像重新一致。
 
 ## 5. 日志与维护
 
@@ -34,7 +47,7 @@ Docker builder cache 维护前先执行 `docker system df`。首次只允许管�
 
 ## 6. `/admin/`、OAuth 与 Access
 
-Decap CMS 是静态的浏览器管理界面，不运行在 Astro 容器中。它通过独立的 Cloudflare Worker 完成 GitHub OAuth：
+Decap CMS 是随 Astro `dist` 和站点 Nginx 镜像一起发布的静态浏览器管理界面；生产环境没有 Astro 或 Decap 常驻运行时服务。只有 GitHub OAuth 由独立的 Cloudflare Worker 处理：
 
 1. 将站点仓库的默认分支切换为 `main`，并把实际 `owner/repository` 写入 `public/admin/config.yml` 的 `backend.repo`。
 2. 创建 GitHub OAuth App，并将回调地址设为 `https://YOUR_OAUTH_WORKER.YOUR_SUBDOMAIN.workers.dev/callback`。
@@ -45,7 +58,7 @@ OAuth Worker 发生故障时，CMS 登录会不可用，但首页、文章、RSS
 
 ## 7. GitHub Actions 自动部署
 
-现有 CI 会在 Pull Request 和 `main`/`master` 推送时执行格式化、lint、Astro 校验、构建与 Pagefind、链接检查、Playwright 和 Docker Compose 配置检查。只有推送到 `main` 且 `verify` 成功时，`deploy` job 才会执行。部署任务按 `production-deploy` 串行化，不会并发覆盖同一 VPS。
+现有 CI 会按失败成本由低到高执行：锁定依赖安装、生产依赖审计、格式、lint、无密钥扫描、Astro 与内容契约、静态构建与 Pagefind、链接、构建产物契约、Playwright、节流移动端 Web Vitals、Compose 配置，最后在 `HOST_PORT=8081` 构建并启动真实生产 Nginx 镜像。容器 smoke 会验证 `/healthz/`、`/admin/` 本地 bundle 与 noindex、缓存矩阵、robots 和安全响应头；退出时只清理当前 GitHub Runner 上的临时容器和网络。只有推送到 `main` 且 `verify` 成功时，`deploy` job 才会执行。部署任务按 `production-deploy` 串行化，不会并发覆盖同一 VPS。
 
 在仓库 Settings -> Secrets and variables -> Actions 配置以下 GitHub Actions secrets，只填写真实值，不提交到仓库：
 
@@ -57,7 +70,9 @@ OAuth Worker 发生故障时，CMS 登录会不可用，但首页、文章、RSS
 - `VPS_PROJECT_DIR`
 - `VPS_KNOWN_HOSTS`
 
-`VPS_PROJECT_DIR` 使用 `/opt/junhaochou-blog/app`。`VPS_HOST_PORT` 用于传入仅绑定回环的容器端口；共享生产主机使用 `8081`，避免与现有服务冲突。部署程序会严格校验主机密钥，拒绝有本地未提交修改的工作树，随后执行 `git fetch origin main`、`git merge --ff-only origin/main`、Docker Compose 重建和本机 `/healthz/` 检查；任一步失败都会使任务失败，不会自动删除容器、卷、镜像或目录。
+`VPS_PROJECT_DIR` 使用 `/opt/junhaochou-blog/app`。`VPS_HOST_PORT` 用于传入仅绑定回环的容器端口；共享生产主机使用 `8081`，避免与现有服务冲突。部署程序会严格校验主机密钥，拒绝有本地未提交修改的工作树，只快进到触发并通过本次 CI 的精确 Git SHA，而不是部署运行期间出现的更新提交。随后它保留回滚镜像、重建 Compose、等待容器健康并检查本机 `/healthz/`；任一步失败都会使任务失败，不会自动删除容器、卷、镜像或目录。
+
+部署 job 还会核对运行镜像的 OCI revision label 与触发 SHA、回环端口，并检查源站的首页、研究、项目、文章、搜索、RSS、健康页和后台静态路由。随后从公网复查这些公开入口，并要求未经授权的 `/admin/` 返回 Cloudflare Access 重定向；公网冒烟失败会恢复预先保留的稳定镜像。
 
 若仓库是私有仓库，为 VPS 专门生成只读 Deploy Key，并将公钥添加到仓库的 Deploy keys。将对应私钥仅保存在 VPS 部署用户的受限 `~/.ssh` 目录，确认该用户能执行 `git fetch origin main` 后，再启用自动部署。不要复用个人 SSH 私钥或把 Deploy Key 放入 GitHub Actions secrets。
 

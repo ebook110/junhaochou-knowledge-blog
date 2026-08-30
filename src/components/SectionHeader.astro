@@ -1,0 +1,91 @@
+---
+import { ArrowRight } from "lucide-astro";
+
+interface Props {
+  id: string;
+  title: string;
+  description?: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+const { id, title, description, href, linkLabel = "查看全部" } = Astro.props;
+---
+
+<header class="section-heading">
+  <div>
+    <h2 id={id}>{title}</h2>
+    {description && <p>{description}</p>}
+  </div>
+  {
+    href && (
+      <a href={href}>
+        <span>{linkLabel}</span>
+        <ArrowRight class="h-4 w-4" aria-hidden="true" />
+      </a>
+    )
+  }
+</header>
+
+<style>
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--site-line-strong);
+    padding-bottom: 1rem;
+  }
+
+  h2 {
+    color: var(--site-ink);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 690;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  p {
+    max-width: 48rem;
+    margin-top: 0.55rem;
+    color: var(--site-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  a {
+    display: inline-flex;
+    min-height: 44px;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--site-cobalt);
+    font-size: 0.875rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--site-cobalt-strong);
+  }
+
+  @media (max-width: 560px) {
+    .section-heading {
+      align-items: start;
+    }
+
+    a span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    a {
+      width: 44px;
+      justify-content: center;
+    }
+  }
+</style>
