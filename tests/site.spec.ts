@@ -12,6 +12,7 @@ for (const path of [
   "/healthz",
   "/articles/vps-secure-ubuntu/",
   "/articles/ansys-codex-workflow/",
+  "/articles/client-subscription-guide/",
 ]) {
   test(`renders ${path}`, async ({ page }) => {
     await page.goto(path);

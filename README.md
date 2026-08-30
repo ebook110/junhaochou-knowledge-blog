@@ -31,6 +31,8 @@ npm.cmd run test
 
 Web CMS 的字段、图片、草稿与删除规则见 [docs/admin-cms.md](docs/admin-cms.md)。`public/admin/config.yml` 必须始终指向当前 GitHub 仓库和 OAuth Worker；不得将令牌或 OAuth secret 写入该文件。缓存与 Cloudflare 手工规则见 [docs/cache-policy.md](docs/cache-policy.md)。
 
+完整的站长日常操作、发布、回滚和维护清单见 [docs/website-operations-guide.md](docs/website-operations-guide.md)。
+
 ## 发布
 
 Docker 镜像只包含 Nginx 和构建后的 `dist`。本机检查：

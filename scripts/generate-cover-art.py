@@ -16,6 +16,7 @@ ASSETS = {
     "vps-secure-ubuntu": ("#175f91", "#2896c9", 21),
     "docker-sub2api": ("#146c77", "#24aab0", 31),
     "network-client-formats": ("#365b9b", "#5687e7", 41),
+    "client-subscription-guide": ("#176477", "#38a7a0", 46),
     "u-card-risk-basics": ("#9a5a1a", "#d69a37", 51),
     "ansys-codex-workflow": ("#6a4a9c", "#9671c7", 61),
     "linux-service-checklist": ("#24734d", "#47aa76", 71),
