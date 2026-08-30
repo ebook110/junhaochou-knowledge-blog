@@ -72,7 +72,9 @@ jobs:
           trap diagnostics ERR
           trap cleanup EXIT
           docker compose build
-          image_id=$(docker compose images -q junhaochou-blog)
+          image_ref=$(docker compose config --images junhaochou-blog)
+          test -n "$image_ref"
+          image_id=$(docker image inspect --format '{{.Id}}' "$image_ref")
           test -n "$image_id"
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$image_id")" = "$BUILD_REVISION"
           docker run --rm --entrypoint /bin/sh "$image_id" -c \
