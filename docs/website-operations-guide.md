@@ -1,7 +1,9 @@
 # JunhaoChou 网站使用、编辑、发布与维护手册
 
-> 适用站点：[https://junhaochou.com/](https://junhaochou.com/)  
-> 在线管理后台：[https://junhaochou.com/admin/](https://junhaochou.com/admin/)  
+> 适用站点：[https://junhaochou.com/](https://junhaochou.com/)
+>
+> 在线管理后台：[https://junhaochou.com/admin/](https://junhaochou.com/admin/)
+>
 > 文档最后核对：2026-08-30
 
 ## 1. 先理解网站的工作方式
